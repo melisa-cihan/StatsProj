@@ -1,15 +1,18 @@
 ---
 title: "Retail Store Sales Dataset Documentation"
 output: pdf_document
+mainfont: "Calibri"
 date: "2025-12-02"
 ---
-
+## Team
+Melisa Cihan, Hrusheekesh Sawarkar, Kezia Fernandes, Raju Ahmed
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(readr)
 library(dplyr)
 ```
+
 
 # **1. Introduction**
 
@@ -27,10 +30,10 @@ The dataset contains transactional retail sales data including product category,
 It is intended for data cleaning and preprocessing tasks.
 
 ```{r load-data}
-# Adjust filename if needed
-data <- read_csv("retail_store_sales.csv")
 
-# Show first few rows
+data <- read_csv("/Users/melisacihan/StatsProj/retail_store_sales.csv")
+
+# First few rows
 head(data)
 ```
 
@@ -56,19 +59,19 @@ glimpse(data)
 
 # **4. Variable Description**
 
-| Variable Name        | Description                                         |
-| -------------------- | --------------------------------------------------- |
-| **Transaction ID**   | Unique identifier for each transaction              |
-| **Customer ID**      | Unique identifier for each customer                 |
-| **Category**         | Product category (e.g., Patisserie, Butchers)       |
-| **Item**             | Specific purchased item                             |
-| **Price Per Unit**   | Price of a single item unit                         |
-| **Quantity**         | Quantity purchased                                  |
-| **Total Spent**      | Price × Quantity                                    |
-| **Payment Method**   | Mode of payment (Digital Wallet, Credit Card, etc.) |
-| **Location**         | Purchase location (Online or physical store)        |
-| **Transaction Date** | Date of the transaction                             |
-| **Discount Applied** | Boolean value indicating if a discount was used     |
+| Variable Name        | Description                                         | Data Type     |
+| -------------------- | --------------------------------------------------- | ------------- |
+| **Transaction ID**   | Unique identifier for each transaction              | Nominal       |
+| **Customer ID**      | Unique identifier for each customer                 | Nominal       |
+| **Category**         | Product category (e.g., Patisserie, Butchers)       | Nominal       |
+| **Item**             | Specific purchased item                             | Nominal       |
+| **Price Per Unit**   | Price of a single item unit                         | Numeric       |
+| **Quantity**         | Quantity purchased                                  | Numeric       |
+| **Total Spent**      | Price × Quantity                                    | Numeric       |
+| **Payment Method**   | Payment mode (Digital Wallet, Credit Card, etc.)    | Nominal       |
+| **Location**         | Purchase location (Online or physical store)        | Nominal       |
+| **Transaction Date** | Date of the transaction                             | Ordinal       |
+| **Discount Applied** | Indicates if a discount was used (True/False)       | Boolean       |
 
 # **5. Example Data (First Few Observations)**
 
@@ -78,19 +81,9 @@ head(data, 5)
 
 # **6. Conclusion**
 
-This dataset provides a structured but intentionally "dirty" retail transaction record intended for data cleaning exercises. The documentation summarizes its structure and provides reproducible R code for loading and exploring the data.
+This dataset provides a structured but intentionally "dirty" retail transaction record intended for data cleaning exercises. The documentation summarizes its structure and provides reproducible R code for loading and exploring the data. 
+Furthermore, a in-depth domain expertise is not necessary for this dataset, since most people already have some everyday knowledge in this retail context.
 
-# **7. R Script for Loading the Data (for Lecturer)**
 
-Save the following as **load_data.R** and upload along with your dataset:
-
-```r
-library(readr)
-
-data <- read_csv("retail_store_sales.csv")
-
-print(head(data))
-print(str(data))
-```
 
 
