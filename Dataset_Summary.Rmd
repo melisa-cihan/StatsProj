@@ -33,8 +33,7 @@ It is intended for data cleaning and preprocessing tasks.
 
 data <- read_csv("/Users/melisacihan/StatsProj/retail_store_sales.csv")
 
-# First few rows
-head(data)
+
 ```
 
 # **3. Summary of the Dataset**
