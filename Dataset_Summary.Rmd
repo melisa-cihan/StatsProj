@@ -1,29 +1,96 @@
 ---
-title: "Dataset_Documentation"
+title: "Retail Store Sales Dataset Documentation"
 output: pdf_document
 date: "2025-12-02"
 ---
 
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(readr)
+library(dplyr)
 ```
 
-## R Markdown
+# **1. Introduction**
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+This document provides a short documentation of the dataset used for the project.
+The dataset was obtained from Kaggle:
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+**Source:** *Retail Store Sales (Dirty) – For Data Cleaning*
+URL: [https://www.kaggle.com/datasets/ahmedmohamed2003/retail-store-sales-dirty-for-data-cleaning/data](https://www.kaggle.com/datasets/ahmedmohamed2003/retail-store-sales-dirty-for-data-cleaning/data)
 
-```{r cars}
-summary(cars)
+The goal of this documentation is to summarize the dataset, describe its variables and types, and provide a reproducible R script used to load the data.
+
+# **2. Dataset Description**
+
+The dataset contains transactional retail sales data including product category, pricing, customer information, and purchase behavior.
+It is intended for data cleaning and preprocessing tasks.
+
+```{r load-data}
+# Adjust filename if needed
+data <- read_csv("retail_store_sales.csv")
+
+# Show first few rows
+head(data)
 ```
 
-## Including Plots
+# **3. Summary of the Dataset**
 
-You can also embed plots, for example:
+## **3.1 Number of Rows and Columns**
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r dims}
+dim(data)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+## **3.2 Summary of Variables**
+
+```{r summary}
+summary(data)
+```
+
+## **3.3 Data Types of Each Variable**
+
+```{r structure}
+glimpse(data)
+```
+
+# **4. Variable Description**
+
+| Variable Name        | Description                                         |
+| -------------------- | --------------------------------------------------- |
+| **Transaction ID**   | Unique identifier for each transaction              |
+| **Customer ID**      | Unique identifier for each customer                 |
+| **Category**         | Product category (e.g., Patisserie, Butchers)       |
+| **Item**             | Specific purchased item                             |
+| **Price Per Unit**   | Price of a single item unit                         |
+| **Quantity**         | Quantity purchased                                  |
+| **Total Spent**      | Price × Quantity                                    |
+| **Payment Method**   | Mode of payment (Digital Wallet, Credit Card, etc.) |
+| **Location**         | Purchase location (Online or physical store)        |
+| **Transaction Date** | Date of the transaction                             |
+| **Discount Applied** | Boolean value indicating if a discount was used     |
+
+# **5. Example Data (First Few Observations)**
+
+```{r head}
+head(data, 5)
+```
+
+# **6. Conclusion**
+
+This dataset provides a structured but intentionally "dirty" retail transaction record intended for data cleaning exercises. The documentation summarizes its structure and provides reproducible R code for loading and exploring the data.
+
+# **7. R Script for Loading the Data (for Lecturer)**
+
+Save the following as **load_data.R** and upload along with your dataset:
+
+```r
+library(readr)
+
+data <- read_csv("retail_store_sales.csv")
+
+print(head(data))
+print(str(data))
+```
+
+
