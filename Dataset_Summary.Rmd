@@ -9,6 +9,8 @@ Melisa Cihan, Hrusheekesh Sawarkar, Kezia Fernandes, Raju Ahmed
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+# required packages
 library(readr)
 library(dplyr)
 ```
@@ -30,6 +32,9 @@ The dataset contains transactional retail sales data including product category,
 It is intended for data cleaning and preprocessing tasks.
 
 ```{r load-data}
+# required packages
+library(readr)
+library(dplyr)
 
 data <- read_csv("/Users/melisacihan/StatsProj/retail_store_sales.csv")
 
