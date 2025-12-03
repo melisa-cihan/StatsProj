@@ -36,7 +36,7 @@ It is intended for data cleaning and preprocessing tasks.
 library(readr)
 library(dplyr)
 
-data <- read_csv("/Users/melisacihan/StatsProj/retail_store_sales.csv")
+data <- read_csv("retail_store_sales.csv")
 
 
 ```
