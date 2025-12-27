@@ -1,0 +1,75 @@
+---
+title: "Student Performance Dataset Documentation"
+output: pdf_document
+mainfont: "Calibri"
+date: "2025-12-27"
+---
+## Team
+Melisa Cihan, Hrusheekesh Sawarkar, Kezia Fernandes, Raju Ahmed
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# required packages
+library(readr)
+library(dplyr)
+```
+
+# **1. Introduction**
+
+This document provides a short documentation on the student performance dataset used for the project.
+The dataset was obtained from Machine Learning Repository:
+
+**Source:** *Retail Store Sales (Dirty) – For Data Cleaning*
+URL: [https://archive.ics.uci.edu/dataset/320/student+performance](https://archive.ics.uci.edu/dataset/320/student+performance)
+
+The goal of this documentation is to summarize the dataset, describe its variables and types and provide a reproducible R script used to load the data.
+
+# **2. Dataset Description**
+
+The dataset contains student performance data in secondary education of two Portugese schools.
+Two datasets are provided regarding the performance in two distinct subjects: Mathematics (mat) and Portuguese language (por). However, we will only analyze and focus on the dataset for Mathematics (mat).
+
+```{r load-data}
+# required packages
+library(readr)
+library(dplyr)
+
+data <- read_csv("student-mat.csv")
+
+
+```
+
+# **3. Summary of the Dataset**
+
+## **3.1 Number of Rows and Columns**
+
+```{r dims}
+dim(data)
+```
+
+## **3.2 Summary of Variables**
+
+```{r summary}
+summary(data)
+```
+
+## **3.3 Data Types of Each Variable**
+
+```{r structure}
+glimpse(data)
+```
+
+# **4. Variable Description**
+
+
+# **5. Example Data (First Few Observations)**
+
+```{r head}
+head(data, 5)
+```
+
+# **6. Conclusion**
+
+# **7. Limitation**
+This dataset does not contain any continuous variables. Even variables like traveltime are displayed as categorical variables, since this is generally the case in social sciences. However, for some of the analyses we would like to use the variable G3 (final grade, ranges from 0-20) as it were a continuous variable, even though it displays discerete integer values.
