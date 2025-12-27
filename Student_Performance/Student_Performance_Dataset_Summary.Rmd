@@ -28,7 +28,7 @@ The goal of this documentation is to summarize the dataset, describe its variabl
 # **2. Dataset Description**
 
 The dataset contains student performance data in secondary education of two Portugese schools.
-Two datasets are provided regarding the performance in two distinct subjects: Mathematics (mat) and Portuguese language (por). However, we will only analyze and focus on the dataset for Mathematics (mat).
+Two datasets are provided regarding the performance in two distinct subjects: Mathematics (mat) and Portuguese language (por). However, we will only analyze and focus on the dataset for Mathematics (mat). Since this dataset contains too many variables we will only consider a subset of these variables, which are displayed in the following.
 
 ```{r load-data}
 # required packages
@@ -87,4 +87,4 @@ head(data, 5)
 # **6. Conclusion**
 
 # **7. Limitation**
-This dataset does not contain any continuous variables. Even variables like traveltime are displayed as categorical variables, since this is generally the case in social sciences. However, for some of the analyses we would like to use the variable G3 (final grade, ranges from 0-20) as it were a continuous variable, even though it displays discerete integer values.
+This dataset does not contain any continuous variables. Even variables like traveltime are displayed as categorical variables, since this is generally the case in social sciences. However, for some of the analyses we would like to use the variable G3 (final grade, ranges from 0-20) as it were a continuous variable, even though it displays discerete integer values. 
