@@ -1,0 +1,127 @@
+---
+title: "Limitations of Synthetic Data in Retail Analysis"
+author: "Statistical Analysis Report"
+date: "`r Sys.Date()`"
+output: pdf_document
+geometry: margin=0.75in
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.width = 6, fig.height = 3)
+library(ggplot2)
+library(dplyr)
+library(lubridate)
+```
+
+# Executive Summary
+
+This report examines a synthetically generated retail dataset through multiple analytical lenses. While the data is structurally sound and allows for various statistical analyses, we identify critical limitations that prevent meaningful real-world inferences.
+
+---
+
+## 1. Univariate Analysis
+
+**[PLACEHOLDER: Include univariate visualizations and summary statistics here]**
+
+---
+
+## 2. Bivariate Analyses & Observed Limitations
+
+```{r load-data}
+# Load the retail dataset
+df <- read.csv("/Users/hrusheekeshsawarkar/Projects/StatsProj/retail_store_sales.csv", 
+               stringsAsFactors = FALSE, na.strings = c("", "NA", "null"))
+```
+
+### 2.1 Discount Efficacy Analysis
+
+```{r discount-analysis, fig.height=2.5}
+# Data cleaning
+clean_data <- df %>%
+  mutate(Transaction.Date = as.Date(Transaction.Date),
+         Price.Per.Unit = as.numeric(Price.Per.Unit),
+         Quantity = as.numeric(Quantity),
+         Total.Spent = as.numeric(Total.Spent),
+         Discount.Applied = ifelse(is.na(Discount.Applied), "Unknown", as.character(Discount.Applied)),
+         Discount.Applied = factor(Discount.Applied, levels = c("True", "False", "Unknown"))) %>%
+  filter(abs((Price.Per.Unit * Quantity) - Total.Spent) < 0.01,
+         Discount.Applied != "Unknown")
+
+# Visualization
+ggplot(clean_data, aes(x = Discount.Applied, y = Quantity, fill = Discount.Applied)) +
+  geom_boxplot(alpha = 0.7) +
+  labs(title = "Impact of Discounts on Purchase Quantity",
+       x = "Discount Applied?", y = "Quantity") +
+  theme_minimal() + scale_fill_brewer(palette = "Set2") +
+  theme(legend.position = "none")
+```
+
+**Limitation**: The discount patterns show unnaturally uniform distributions, lacking the strategic clustering (seasonal promotions, clearance events) observed in real retail environments. The relationship between discounts and purchase behavior appears artificially balanced.
+
+### 2.2 Market Basket Insights by Category
+
+```{r market-analysis, fig.height=2.5}
+clean_market_data <- df %>%
+  mutate(Category = as.factor(Category),
+         Price.Per.Unit = as.numeric(Price.Per.Unit),
+         Total.Spent = as.numeric(Total.Spent)) %>%
+  filter(!is.na(Category) & !is.na(Total.Spent))
+
+category_summary <- clean_market_data %>%
+  group_by(Category) %>%
+  summarise(Mean_Spent = mean(Total.Spent, na.rm = TRUE)) %>%
+  arrange(desc(Mean_Spent))
+
+ggplot(category_summary, aes(x = reorder(Category, -Mean_Spent), y = Mean_Spent, fill = Category)) +
+  geom_col() +
+  labs(title = "Average Transaction Value by Product Category",
+       x = "Category", y = "Avg Spent ($)") +
+  theme_minimal() + theme(legend.position = "none", axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+**Limitation**: Category spending patterns lack domain-specific realism. Real retail data exhibits stronger variance driven by product mix, seasonality, and cross-category purchasing behaviors that are absent in this synthetic generation.
+
+### 2.3 Payment Preferences by Location
+
+```{r payment-analysis, fig.height=2.5}
+clean_payment_data <- df %>%
+  select(Location, Payment.Method) %>%
+  filter(!is.na(Location) & !is.na(Payment.Method)) %>%
+  mutate(Location = as.factor(Location),
+         Payment.Method = as.factor(Payment.Method))
+
+ggplot(clean_payment_data, aes(x = Location, fill = Payment.Method)) +
+  geom_bar(position = "fill") + 
+  scale_y_continuous(labels = scales::percent) +
+  labs(title = "Payment Method Distribution by Location",
+       x = "Store Location", y = "% of Transactions", fill = "Payment") +
+  theme_minimal() + scale_fill_brewer(palette = "Set3")
+```
+
+**Limitation**: Payment method distributions are overly homogeneous across locations. Real-world data exhibits stronger geographic and demographic influences (e.g., mobile payments in urban areas, cash preference in rural regions).
+
+### 2.4 Temporal Spending Patterns
+
+```{r time-analysis, fig.height=2.5}
+clean_time_data <- df %>%
+  mutate(Transaction.Date = as.Date(Transaction.Date),
+         Total.Spent = as.numeric(Total.Spent)) %>%
+  filter(!is.na(Transaction.Date) & !is.na(Total.Spent)) %>%
+  group_by(Transaction.Date) %>%
+  summarise(Daily_Revenue = sum(Total.Spent), .groups = 'drop')
+
+ggplot(clean_time_data, aes(x = Transaction.Date, y = Daily_Revenue)) +
+  geom_line(color = "steelblue", alpha = 0.5) +
+  geom_smooth(method = "loess", color = "red", se = TRUE) +
+  labs(title = "Daily Revenue Trends Over Time",
+       x = "Date", y = "Daily Revenue ($)") +
+  theme_minimal()
+```
+
+**Limitation**: Time series data lacks authentic seasonality markers—no holiday spikes, weekend patterns, or promotional cycles. The smooth, random fluctuations do not reflect real consumer behavior driven by events, weather, or economic conditions.
+
+---
+
+
+**Conclusion**: While synthetic data serves as a valuable pedagogical tool and allows for reproducible analysis pipelines, it cannot substitute authentic data for deriving actionable business insights in retail analytics.
+
