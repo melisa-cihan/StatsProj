@@ -36,7 +36,7 @@ library(readr)
 library(dplyr)
 
 # Use read_csv2() for semicolon-separated values
-data <- read_csv2("/Users/hrusheekeshsawarkar/Projects/StatsProj/Student_Performance/student-mat.csv")
+data <- read_csv2("/Users/melisacihan/Desktop/Statistical Computing/StatsProj/Student_Performance/student-mat.csv")
 
 
 ```
@@ -87,10 +87,11 @@ glimpse(data_selected)
 # **5. Example Data (First Few Observations)**
 
 ```{r head}
-head(data, 5)
+head(data_selected, 5)
 ```
 
 # **6. Conclusion**
+The dataset's focus on secondary education enables intuitive analysis of socioeconomic drivers behind academic achievement. Furthermore, the data structure supports meaningful bivariate analysis and linear regression modeling to predict student performance. As already mentioned, since this dataset contains too many variables we will only consider a subset of these variables.
 
 # **7. Limitation**
 This dataset does not contain any continuous variables. Even variables like traveltime are displayed as categorical variables, since this is generally the case in social sciences. However, for some of the analyses we would like to use the variable G3 (final grade, ranges from 0-20) as it were a continuous variable, even though it displays discerete integer values. 
