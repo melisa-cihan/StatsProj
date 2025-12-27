@@ -7,7 +7,12 @@ geometry: margin=0.75in
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.width = 6, fig.height = 3)
+knitr::opts_chunk$set(echo = FALSE, 
+                      warning = FALSE, 
+                      message = FALSE, 
+                      fig.width = 8, 
+                      fig.height = 5, 
+                      out.width = "100%")
 library(ggplot2)
 library(dplyr)
 library(lubridate)
@@ -21,17 +26,66 @@ This report examines a synthetically generated retail dataset through multiple a
 
 ## 1. Univariate Analysis
 
-**[PLACEHOLDER: Include univariate visualizations and summary statistics here]**
-
----
-
-## 2. Bivariate Analyses & Observed Limitations
 
 ```{r load-data}
 # Load the retail dataset
-df <- read.csv("/Users/hrusheekeshsawarkar/Projects/StatsProj/retail_store_sales.csv", 
+df <- read.csv("D:/Statistics/StatsProject/retail_store_sales.csv", 
                stringsAsFactors = FALSE, na.strings = c("", "NA", "null"))
 ```
+### 1.1 Category (Nominal)
+```{r category-plot, fig.height=6}
+# fig.height=6 gives it extra vertical room for the category names at the bottom
+ggplot(df, aes(x = Category)) +
+  geom_bar(fill = "steelblue", color = "black") +
+  labs(title = "Category Frequency", x = "Category", y = "Frequency") +
+  theme_minimal(base_size = 14) + # This makes all text bigger/visible
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+**Limitation**: The synthetic dataset shows that in the retail store purchases are almost evenly distributed across all categories. Real retail data usually has some categories dominate, so this uniformity is unrealistic.
+
+### 1.2 Price Tier (Ordinal)
+```{r price-tier-plot, fig.height=2.5}
+
+
+df$Price.Tier <- NA
+df$Price.Tier[df$Price.Per.Unit >= 5 & df$Price.Per.Unit <= 17] <- "Low"
+df$Price.Tier[df$Price.Per.Unit >= 17.5 & df$Price.Per.Unit <= 29] <- "Medium"
+df$Price.Tier[df$Price.Per.Unit >= 29.5 & df$Price.Per.Unit <= 41] <- "High"
+df$Price.Tier <- factor(df$Price.Tier, levels = c("Low", "Medium", "High"), ordered = TRUE)
+# Bar plot for ordinal price tier
+
+ggplot(df[!is.na(df$Price.Tier),], aes(x = Price.Tier, fill = Price.Tier)) +
+  geom_bar() +
+  scale_fill_manual(values = c("Low" = "lightgreen", "Medium" = "orange", "High" = "red")) +
+  labs(title = "Price Tier Distribution",
+       x = "Price Tier", y = "Count") +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+```
+**Limitation**: Price tiers are almost evenly distributed. In reality, mid-range price points usually dominate, so this dataset lacks realistic variation.
+
+### 1.3 Price Per Unit (Continuous)
+```{r price-cont-plot, fig.height=5}
+# 'mar' adjusts the margins around the plot 
+# (bottom, left, top, right)
+par(mar=c(5, 6, 4, 2)) 
+
+hist(df$Price.Per.Unit, 
+     main = "Histogram of Price Per Unit",
+     xlab = "Price (€)", 
+     ylab = "Frequency",
+     col = "skyblue", 
+     border = "black",
+     cex.lab = 1.3,   # Makes the "Frequency" text bigger
+     cex.axis = 1.2)  # Makes the Y-axis numbers bigger
+```
+**Limitation**: The continuous price variable is fairly evenly spread and lacks the clustering around common price points that real retail data would show.
+
+---
+
+### 2. Bivariate Analyses & Observed Limitations
+
 
 ### 2.1 Discount Efficacy Analysis
 
