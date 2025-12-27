@@ -35,7 +35,8 @@ Two datasets are provided regarding the performance in two distinct subjects: Ma
 library(readr)
 library(dplyr)
 
-data <- read_csv("/Users/hrusheekeshsawarkar/Projects/StatsProj/Student_Performance/student-mat.csv")
+# Use read_csv2() for semicolon-separated values
+data <- read_csv2("/Users/hrusheekeshsawarkar/Projects/StatsProj/Student_Performance/student-mat.csv")
 
 
 ```
@@ -51,13 +52,18 @@ dim(data)
 ## **3.2 Summary of Variables**
 
 ```{r summary}
-summary(data)
+# Select only the variables of interest for better readability
+data_selected <- data %>% 
+  select(sex, age, Medu, traveltime, studytime, failures, paid, 
+         activities, higher, internet, famrel, absences, G3)
+
+summary(data_selected)
 ```
 
 ## **3.3 Data Types of Each Variable**
 
 ```{r structure}
-glimpse(data)
+glimpse(data_selected)
 ```
 
 # **4. Variable Description**
