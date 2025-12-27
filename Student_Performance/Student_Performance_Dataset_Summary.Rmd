@@ -35,7 +35,7 @@ Two datasets are provided regarding the performance in two distinct subjects: Ma
 library(readr)
 library(dplyr)
 
-data <- read_csv("student-mat.csv")
+data <- read_csv("/Users/hrusheekeshsawarkar/Projects/StatsProj/Student_Performance/student-mat.csv")
 
 
 ```
@@ -62,6 +62,21 @@ glimpse(data)
 
 # **4. Variable Description**
 
+| Variable Name | Data Type | Scale of Measure | Description |
+|---------------|-----------|------------------|-------------|
+| **sex** | Binary | Nominal | Student's sex (F - female, M - male) |
+| **age** | Numeric | Numeric discrete | Student's age (ranges from 15 to 22 years) |
+| **Medu** | Categorical | Ordinal | Mother's education level (0 - none, 1 - primary education (4th grade), 2 - 5th to 9th grade, 3 - secondary education, 4 - higher education) |
+| **traveltime** | Categorical | Ordinal | Home to school travel time (1 - <15 min., 2 - 15 to 30 min., 3 - 30 min. to 1 hour, 4 - >1 hour) |
+| **studytime** | Categorical | Ordinal | Weekly study time (1 - <2 hours, 2 - 2 to 5 hours, 3 - 5 to 10 hours, 4 - >10 hours) |
+| **failures** | Numeric | Discrete | Number of past class failures (numeric value, where 4 represents 3 or more failures) |
+| **paid** | Binary | Nominal | Extra paid classes within the course subject (yes or no) |
+| **activities** | Binary | Nominal | Participation in extra-curricular activities (yes or no) |
+| **higher** | Binary | Nominal | Wants to pursue higher education (yes or no) |
+| **internet** | Binary | Nominal | Internet access at home (yes or no) |
+| **famrel** | Categorical | Ordinal | Quality of family relationships (scale from 1 - very bad to 5 - excellent) |
+| **absences** | Numeric | Discrete | Number of school absences (ranges from 0 to 93) |
+| **G3** | Numeric | Continuous* | Final grade (ranges from 0 to 20) |
 
 # **5. Example Data (First Few Observations)**
 
