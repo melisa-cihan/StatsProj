@@ -59,7 +59,10 @@ data_selected <- data %>%
 
 summary(data_selected)
 ```
-
+### **dimension of selected subset**
+```{r dims selected data}
+dim(data_selected)
+```
 ## **3.3 Data Types of Each Variable**
 
 ```{r structure}
