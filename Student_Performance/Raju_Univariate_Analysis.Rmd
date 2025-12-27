@@ -1,0 +1,506 @@
+---
+title: "Univariate Analysis - Student Performance Dataset"
+author: "Raju Ahmed"
+date: "2025-12-27"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+
+# Required packages
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(knitr)
+```
+
+# 1. Introduction
+
+In this document, I present my univariate analysis for the Student Performance dataset. My analysis covers the following variables:
+
+**Binary/Nominal Variables:** sex, paid, activities, higher, internet
+
+**Ordinal Variables:** Medu (Mother's Education), famrel (Family Relationships)
+
+**Numeric Discrete Variable:** age
+
+Additionally, I include one bivariate analysis: **Medu vs G3** (Mother's Education vs Final Grade).
+
+# 2. Data Loading
+
+```{r load-data}
+# Load the selected dataset
+data <- read_csv("student-mat-selected.csv")
+
+# Display structure
+glimpse(data)
+```
+
+```{r data-overview}
+# Dataset dimensions
+cat("Dataset Dimensions:", nrow(data), "rows x", ncol(data), "columns\n")
+```
+
+---
+
+# 3. Univariate Analysis - Binary Variables
+
+## 3.1 Sex (Student's Sex)
+
+```{r sex-analysis}
+# Frequency Table
+sex_freq <- data.frame(
+  Category = names(table(data$sex)),
+  Absolute_Freq = as.vector(table(data$sex)),
+  Relative_Freq = round(as.vector(prop.table(table(data$sex))), 3)
+)
+kable(sex_freq, caption = "Frequency Distribution of Sex")
+
+# Mode
+cat("\nMode:", names(which.max(table(data$sex))), "\n")
+```
+
+```{r sex-plot, fig.width=6, fig.height=4}
+ggplot(data, aes(x = sex, fill = sex)) +
+  geom_bar() +
+  geom_text(stat = "count", aes(label = ..count..), vjust = -0.5) +
+  scale_fill_manual(values = c("F" = "#E69F00", "M" = "#56B4E9")) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
+  labs(title = "Distribution of Sex",
+       x = "Sex",
+       y = "Frequency") +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+**Interpretation:** The dataset contains `r sum(data$sex == "F")` female and `r sum(data$sex == "M")` male students. Females represent `r round(mean(data$sex == "F") * 100, 1)`% of the sample.
+
+---
+
+## 3.2 Paid (Extra Paid Classes)
+
+```{r paid-analysis}
+# Frequency Table
+paid_freq <- data.frame(
+  Category = names(table(data$paid)),
+  Absolute_Freq = as.vector(table(data$paid)),
+  Relative_Freq = round(as.vector(prop.table(table(data$paid))), 3)
+)
+kable(paid_freq, caption = "Frequency Distribution of Paid Classes")
+
+# Mode
+cat("\nMode:", names(which.max(table(data$paid))), "\n")
+```
+
+```{r paid-plot, fig.width=6, fig.height=4}
+ggplot(data, aes(x = paid, fill = paid)) +
+  geom_bar() +
+  geom_text(stat = "count", aes(label = ..count..), vjust = -0.5) +
+  scale_fill_manual(values = c("no" = "#D55E00", "yes" = "#009E73")) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
+  labs(title = "Distribution of Extra Paid Classes",
+       x = "Paid Classes",
+       y = "Frequency") +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+**Interpretation:** `r round(mean(data$paid == "yes") * 100, 1)`% of students take extra paid classes within the Math course.
+
+---
+
+## 3.3 Activities (Extra-curricular Activities)
+
+```{r activities-analysis}
+# Frequency Table
+activities_freq <- data.frame(
+  Category = names(table(data$activities)),
+  Absolute_Freq = as.vector(table(data$activities)),
+  Relative_Freq = round(as.vector(prop.table(table(data$activities))), 3)
+)
+kable(activities_freq, caption = "Frequency Distribution of Extra-curricular Activities")
+
+# Mode
+cat("\nMode:", names(which.max(table(data$activities))), "\n")
+```
+
+```{r activities-plot, fig.width=6, fig.height=4}
+ggplot(data, aes(x = activities, fill = activities)) +
+  geom_bar() +
+  geom_text(stat = "count", aes(label = ..count..), vjust = -0.5) +
+  scale_fill_manual(values = c("no" = "#D55E00", "yes" = "#009E73")) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
+  labs(title = "Distribution of Extra-curricular Activities",
+       x = "Activities",
+       y = "Frequency") +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+**Interpretation:** `r round(mean(data$activities == "yes") * 100, 1)`% of students participate in extra-curricular activities.
+
+---
+
+## 3.4 Higher (Wants Higher Education)
+
+```{r higher-analysis}
+# Frequency Table
+higher_freq <- data.frame(
+  Category = names(table(data$higher)),
+  Absolute_Freq = as.vector(table(data$higher)),
+  Relative_Freq = round(as.vector(prop.table(table(data$higher))), 3)
+)
+kable(higher_freq, caption = "Frequency Distribution of Higher Education Aspiration")
+
+# Mode
+cat("\nMode:", names(which.max(table(data$higher))), "\n")
+```
+
+```{r higher-plot, fig.width=6, fig.height=4}
+ggplot(data, aes(x = higher, fill = higher)) +
+  geom_bar() +
+  geom_text(stat = "count", aes(label = ..count..), vjust = -0.5) +
+  scale_fill_manual(values = c("no" = "#D55E00", "yes" = "#009E73")) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
+  labs(title = "Distribution of Higher Education Aspiration",
+       x = "Wants Higher Education",
+       y = "Frequency") +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+**Interpretation:** An overwhelming `r round(mean(data$higher == "yes") * 100, 1)`% of students want to pursue higher education.
+
+---
+
+## 3.5 Internet (Internet Access at Home)
+
+```{r internet-analysis}
+# Frequency Table
+internet_freq <- data.frame(
+  Category = names(table(data$internet)),
+  Absolute_Freq = as.vector(table(data$internet)),
+  Relative_Freq = round(as.vector(prop.table(table(data$internet))), 3)
+)
+kable(internet_freq, caption = "Frequency Distribution of Internet Access")
+
+# Mode
+cat("\nMode:", names(which.max(table(data$internet))), "\n")
+```
+
+```{r internet-plot, fig.width=6, fig.height=4}
+ggplot(data, aes(x = internet, fill = internet)) +
+  geom_bar() +
+  geom_text(stat = "count", aes(label = ..count..), vjust = -0.5) +
+  scale_fill_manual(values = c("no" = "#D55E00", "yes" = "#009E73")) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
+  labs(title = "Distribution of Internet Access at Home",
+       x = "Internet Access",
+       y = "Frequency") +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+**Interpretation:** `r round(mean(data$internet == "yes") * 100, 1)`% of students have internet access at home.
+
+---
+
+# 4. Univariate Analysis - Ordinal Variables
+
+## 4.1 Medu (Mother's Education Level)
+
+Mother's education is coded as:
+
+- 0: None
+- 1: Primary education (4th grade)
+- 2: 5th to 9th grade
+- 3: Secondary education
+- 4: Higher education
+
+```{r medu-analysis}
+# Frequency Table with Cumulative
+medu_freq <- data.frame(
+  Level = names(table(data$Medu)),
+  Absolute_Freq = as.vector(table(data$Medu)),
+  Relative_Freq = round(as.vector(prop.table(table(data$Medu))), 3),
+  Cumulative_Freq = round(cumsum(as.vector(prop.table(table(data$Medu)))), 3)
+)
+kable(medu_freq, caption = "Frequency Distribution of Mother's Education")
+
+# Mode and Median
+cat("\nMode:", names(which.max(table(data$Medu))))
+cat("\nMedian:", median(data$Medu), "\n")
+```
+
+```{r medu-plot, fig.width=7, fig.height=4}
+# Create labels for education levels
+medu_labels <- c("0: None", "1: Primary", "2: 5th-9th", "3: Secondary", "4: Higher")
+
+ggplot(data, aes(x = factor(Medu), fill = factor(Medu))) +
+  geom_bar() +
+  geom_text(stat = "count", aes(label = ..count..), vjust = -0.5) +
+  scale_fill_brewer(palette = "Blues") +
+  scale_x_discrete(labels = medu_labels) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
+  labs(title = "Distribution of Mother's Education Level",
+       x = "Education Level",
+       y = "Frequency") +
+  theme_minimal() +
+  theme(legend.position = "none",
+        axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+**Interpretation:** The most common mother's education level is `r names(which.max(table(data$Medu)))` (mode), with a median of `r median(data$Medu)`. This indicates that most mothers have at least secondary education or higher.
+
+---
+
+## 4.2 Famrel (Quality of Family Relationships)
+
+Family relationship quality is coded on a scale from 1 (very bad) to 5 (excellent).
+
+```{r famrel-analysis}
+# Frequency Table with Cumulative
+famrel_freq <- data.frame(
+  Level = names(table(data$famrel)),
+  Absolute_Freq = as.vector(table(data$famrel)),
+  Relative_Freq = round(as.vector(prop.table(table(data$famrel))), 3),
+  Cumulative_Freq = round(cumsum(as.vector(prop.table(table(data$famrel)))), 3)
+)
+kable(famrel_freq, caption = "Frequency Distribution of Family Relationships")
+
+# Mode and Median
+cat("\nMode:", names(which.max(table(data$famrel))))
+cat("\nMedian:", median(data$famrel), "\n")
+```
+
+```{r famrel-plot, fig.width=7, fig.height=4}
+# Create labels for famrel
+famrel_labels <- c("1: Very Bad", "2: Bad", "3: Neutral", "4: Good", "5: Excellent")
+
+ggplot(data, aes(x = factor(famrel), fill = factor(famrel))) +
+  geom_bar() +
+  geom_text(stat = "count", aes(label = ..count..), vjust = -0.5) +
+  scale_fill_brewer(palette = "Greens") +
+  scale_x_discrete(labels = famrel_labels) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
+  labs(title = "Distribution of Family Relationship Quality",
+       x = "Quality Level",
+       y = "Frequency") +
+  theme_minimal() +
+  theme(legend.position = "none",
+        axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+**Interpretation:** Most students report good to excellent family relationships (mode = `r names(which.max(table(data$famrel)))`, median = `r median(data$famrel)`). Only a small minority report poor family relationships.
+
+---
+
+# 5. Univariate Analysis - Numeric Variable
+
+## 5.1 Age (Student's Age)
+
+```{r age-analysis}
+# Central Tendency
+cat("=== Central Tendency ===\n")
+cat("Mean:", round(mean(data$age), 2), "\n")
+cat("Median:", median(data$age), "\n")
+cat("Mode:", names(which.max(table(data$age))), "\n")
+
+# Dispersion
+cat("\n=== Dispersion ===\n")
+cat("Variance:", round(var(data$age), 2), "\n")
+cat("Standard Deviation:", round(sd(data$age), 2), "\n")
+cat("Range:", min(data$age), "-", max(data$age), "\n")
+cat("IQR:", IQR(data$age), "\n")
+cat("Coefficient of Variation:", round(sd(data$age)/mean(data$age)*100, 2), "%\n")
+
+# Five-Number Summary
+cat("\n=== Five-Number Summary ===\n")
+print(fivenum(data$age))
+
+# Quartiles
+cat("\n=== Quartiles ===\n")
+print(quantile(data$age))
+```
+
+```{r age-freq-table}
+# Frequency Table
+age_freq <- data.frame(
+  Age = names(table(data$age)),
+  Absolute_Freq = as.vector(table(data$age)),
+  Relative_Freq = round(as.vector(prop.table(table(data$age))), 3),
+  Cumulative_Freq = round(cumsum(as.vector(prop.table(table(data$age)))), 3)
+)
+kable(age_freq, caption = "Frequency Distribution of Age")
+```
+
+```{r age-histogram, fig.width=7, fig.height=4}
+ggplot(data, aes(x = age)) +
+  geom_histogram(binwidth = 1, fill = "steelblue", color = "white") +
+  geom_vline(aes(xintercept = mean(age)), color = "red", linetype = "dashed", size = 1) +
+  geom_vline(aes(xintercept = median(age)), color = "green", linetype = "dashed", size = 1) +
+  labs(title = "Distribution of Student Age",
+       subtitle = "Red line = Mean, Green line = Median",
+       x = "Age (years)",
+       y = "Frequency") +
+  scale_x_continuous(breaks = seq(15, 22, 1)) +
+  theme_minimal()
+```
+
+```{r age-boxplot, fig.width=6, fig.height=4}
+ggplot(data, aes(y = age)) +
+  geom_boxplot(fill = "steelblue", alpha = 0.7) +
+  labs(title = "Boxplot of Student Age",
+       y = "Age (years)") +
+  theme_minimal()
+```
+
+**Interpretation:**
+
+- Students' ages range from `r min(data$age)` to `r max(data$age)` years
+- Mean age is `r round(mean(data$age), 2)` years (SD = `r round(sd(data$age), 2)`)
+- The distribution is slightly right-skewed (mean > median), indicating some older students
+- Most students (IQR) are between `r quantile(data$age, 0.25)` and `r quantile(data$age, 0.75)` years old
+- The mode is `r names(which.max(table(data$age)))` years, the most common age
+
+---
+
+# 6. Summary Table - All Variables
+
+```{r summary-table}
+# Create summary for all Raju's variables
+summary_table <- data.frame(
+  Variable = c("sex", "age", "Medu", "paid", "activities", "higher", "internet", "famrel"),
+  Type = c("Binary", "Numeric", "Ordinal", "Binary", "Binary", "Binary", "Binary", "Ordinal"),
+  n = rep(nrow(data), 8),
+  Mode = c(
+    names(which.max(table(data$sex))),
+    names(which.max(table(data$age))),
+    names(which.max(table(data$Medu))),
+    names(which.max(table(data$paid))),
+    names(which.max(table(data$activities))),
+    names(which.max(table(data$higher))),
+    names(which.max(table(data$internet))),
+    names(which.max(table(data$famrel)))
+  ),
+  Median = c(
+    "-",
+    as.character(median(data$age)),
+    as.character(median(data$Medu)),
+    "-",
+    "-",
+    "-",
+    "-",
+    as.character(median(data$famrel))
+  ),
+  Mean = c(
+    "-",
+    as.character(round(mean(data$age), 2)),
+    "-",
+    "-",
+    "-",
+    "-",
+    "-",
+    "-"
+  ),
+  SD = c(
+    "-",
+    as.character(round(sd(data$age), 2)),
+    "-",
+    "-",
+    "-",
+    "-",
+    "-",
+    "-"
+  )
+)
+
+kable(summary_table, caption = "Summary Statistics for Raju's Variables")
+```
+
+---
+
+# 7. Bivariate Analysis: Mother's Education vs Final Grade
+
+This section examines the relationship between mother's education level (Medu) and student's final grade (G3).
+
+```{r bivariate-stats}
+# Group statistics
+bivariate_stats <- data %>%
+  group_by(Medu) %>%
+  summarise(
+    n = n(),
+    Mean_G3 = round(mean(G3), 2),
+    SD_G3 = round(sd(G3), 2),
+    Median_G3 = median(G3),
+    Min_G3 = min(G3),
+    Max_G3 = max(G3)
+  )
+
+kable(bivariate_stats, caption = "Final Grade (G3) Statistics by Mother's Education Level")
+```
+
+```{r bivariate-correlation}
+# Spearman correlation (appropriate for ordinal vs continuous)
+spearman_cor <- cor(data$Medu, data$G3, method = "spearman")
+cat("Spearman Correlation (Medu vs G3):", round(spearman_cor, 3), "\n")
+
+# Pearson correlation for comparison
+pearson_cor <- cor(data$Medu, data$G3, method = "pearson")
+cat("Pearson Correlation (Medu vs G3):", round(pearson_cor, 3), "\n")
+```
+
+```{r bivariate-boxplot, fig.width=8, fig.height=5}
+medu_labels <- c("0: None", "1: Primary", "2: 5th-9th", "3: Secondary", "4: Higher")
+
+ggplot(data, aes(x = factor(Medu), y = G3, fill = factor(Medu))) +
+  geom_boxplot() +
+  scale_fill_brewer(palette = "Blues") +
+  scale_x_discrete(labels = medu_labels) +
+  labs(title = "Final Grade by Mother's Education Level",
+       x = "Mother's Education Level",
+       y = "Final Grade (G3)") +
+  theme_minimal() +
+  theme(legend.position = "none",
+        axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r bivariate-scatter, fig.width=8, fig.height=5}
+ggplot(data, aes(x = Medu, y = G3)) +
+  geom_jitter(alpha = 0.5, width = 0.2, color = "steelblue") +
+  geom_smooth(method = "lm", color = "red", se = TRUE) +
+  labs(title = "Final Grade vs Mother's Education Level",
+       subtitle = paste("Spearman r =", round(spearman_cor, 3)),
+       x = "Mother's Education Level (0-4)",
+       y = "Final Grade (G3)") +
+  scale_x_continuous(breaks = 0:4) +
+  theme_minimal()
+```
+
+```{r bivariate-bar, fig.width=8, fig.height=5}
+ggplot(bivariate_stats, aes(x = factor(Medu), y = Mean_G3, fill = factor(Medu))) +
+  geom_bar(stat = "identity") +
+  geom_errorbar(aes(ymin = Mean_G3 - SD_G3, ymax = Mean_G3 + SD_G3), width = 0.2) +
+  geom_text(aes(label = Mean_G3), vjust = -0.5) +
+  scale_fill_brewer(palette = "Blues") +
+  scale_x_discrete(labels = medu_labels) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
+  labs(title = "Mean Final Grade by Mother's Education Level",
+       subtitle = "Error bars represent +/- 1 SD",
+       x = "Mother's Education Level",
+       y = "Mean Final Grade (G3)") +
+  theme_minimal() +
+  theme(legend.position = "none",
+        axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+**Interpretation:**
+
+- There is a **positive correlation** between mother's education and student's final grade (Spearman r = `r round(spearman_cor, 3)`)
+- **Important caveat:** Medu = 0 shows a high mean (13.0), but this is a **small sample artifact** with only n = 3 students (grades: 9, 15, 15). This group should be excluded from trend interpretation.
+- **Excluding Medu = 0**, there is a clear positive trend: as mother's education increases from level 1 to 4, mean grades increase (8.68 → 9.73 → 10.30 → 11.76)
+- Students with mothers who have higher education (level 4) achieve the highest mean grade (`r bivariate_stats$Mean_G3[bivariate_stats$Medu == 4]`)
+- Students with mothers having only primary education (level 1) have the lowest mean grade (`r bivariate_stats$Mean_G3[bivariate_stats$Medu == 1]`)
+- The relationship suggests that **parental education is a meaningful predictor** of student academic performance
+
