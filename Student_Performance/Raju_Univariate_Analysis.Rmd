@@ -29,7 +29,7 @@ Additionally, I include one bivariate analysis: **Medu vs G3** (Mother's Educati
 
 # 2. Data Loading
 
-```{r load-data}
+```{r load-data, echo=TRUE}
 # Load the selected dataset
 data <- read_csv("student-mat-selected.csv")
 
