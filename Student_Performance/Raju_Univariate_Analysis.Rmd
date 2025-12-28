@@ -46,163 +46,62 @@ cat("Dataset Dimensions:", nrow(data), "rows x", ncol(data), "columns\n")
 
 # 3. Univariate Analysis - Binary Variables
 
-## 3.1 Sex (Student's Sex)
+The binary variables in my analysis are: **sex**, **paid** (extra paid classes), **activities** (extra-curricular), **higher** (wants higher education), and **internet** (home internet access).
 
-```{r sex-analysis}
-# Frequency Table
-sex_freq <- data.frame(
-  Category = names(table(data$sex)),
-  Absolute_Freq = as.vector(table(data$sex)),
-  Relative_Freq = round(as.vector(prop.table(table(data$sex))), 3)
+```{r binary-summary-table}
+# Combined frequency table for all binary variables
+binary_summary <- data.frame(
+  Variable = c("sex (Female)", "sex (Male)", "paid (yes)", "paid (no)",
+               "activities (yes)", "activities (no)", "higher (yes)", "higher (no)",
+               "internet (yes)", "internet (no)"),
+  Absolute_Freq = c(sum(data$sex == "F"), sum(data$sex == "M"),
+                    sum(data$paid == "yes"), sum(data$paid == "no"),
+                    sum(data$activities == "yes"), sum(data$activities == "no"),
+                    sum(data$higher == "yes"), sum(data$higher == "no"),
+                    sum(data$internet == "yes"), sum(data$internet == "no")),
+  Relative_Freq = c(round(mean(data$sex == "F"), 3), round(mean(data$sex == "M"), 3),
+                    round(mean(data$paid == "yes"), 3), round(mean(data$paid == "no"), 3),
+                    round(mean(data$activities == "yes"), 3), round(mean(data$activities == "no"), 3),
+                    round(mean(data$higher == "yes"), 3), round(mean(data$higher == "no"), 3),
+                    round(mean(data$internet == "yes"), 3), round(mean(data$internet == "no"), 3))
 )
-kable(sex_freq, caption = "Frequency Distribution of Sex")
-
-# Mode
-cat("\nMode:", names(which.max(table(data$sex))), "\n")
+kable(binary_summary, caption = "Frequency Distribution of Binary Variables")
 ```
 
-```{r sex-plot, fig.width=6, fig.height=4}
-ggplot(data, aes(x = sex, fill = sex)) +
-  geom_bar() +
-  geom_text(stat = "count", aes(label = ..count..), vjust = -0.5) +
-  scale_fill_manual(values = c("F" = "#E69F00", "M" = "#56B4E9")) +
-  scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
-  labs(title = "Distribution of Sex",
-       x = "Sex",
-       y = "Frequency") +
-  theme_minimal() +
-  theme(legend.position = "none")
-```
-
-**Interpretation:** The dataset contains `r sum(data$sex == "F")` female and `r sum(data$sex == "M")` male students. Females represent `r round(mean(data$sex == "F") * 100, 1)`% of the sample.
-
----
-
-## 3.2 Paid (Extra Paid Classes)
-
-```{r paid-analysis}
-# Frequency Table
-paid_freq <- data.frame(
-  Category = names(table(data$paid)),
-  Absolute_Freq = as.vector(table(data$paid)),
-  Relative_Freq = round(as.vector(prop.table(table(data$paid))), 3)
+```{r binary-combined-plot, fig.width=10, fig.height=5}
+# Create data for combined plot (showing "yes" or positive category percentages)
+binary_data <- data.frame(
+  Variable = factor(c("Sex (Female)", "Paid Classes", "Activities", "Higher Ed", "Internet"),
+                    levels = c("Sex (Female)", "Paid Classes", "Activities", "Higher Ed", "Internet")),
+  Percentage = c(
+    mean(data$sex == "F") * 100,
+    mean(data$paid == "yes") * 100,
+    mean(data$activities == "yes") * 100,
+    mean(data$higher == "yes") * 100,
+    mean(data$internet == "yes") * 100
+  )
 )
-kable(paid_freq, caption = "Frequency Distribution of Paid Classes")
 
-# Mode
-cat("\nMode:", names(which.max(table(data$paid))), "\n")
-```
-
-```{r paid-plot, fig.width=6, fig.height=4}
-ggplot(data, aes(x = paid, fill = paid)) +
-  geom_bar() +
-  geom_text(stat = "count", aes(label = ..count..), vjust = -0.5) +
-  scale_fill_manual(values = c("no" = "#D55E00", "yes" = "#009E73")) +
-  scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
-  labs(title = "Distribution of Extra Paid Classes",
-       x = "Paid Classes",
-       y = "Frequency") +
+ggplot(binary_data, aes(x = Variable, y = Percentage, fill = Variable)) +
+  geom_bar(stat = "identity", width = 0.7) +
+  geom_text(aes(label = paste0(round(Percentage, 1), "%")), vjust = -0.5, size = 4) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.15)), limits = c(0, 100)) +
+  scale_fill_brewer(palette = "Set2") +
+  labs(title = "Distribution of Binary Variables (Percentage of Yes/Positive Category)",
+       x = "",
+       y = "Percentage (%)") +
   theme_minimal() +
-  theme(legend.position = "none")
+  theme(legend.position = "none",
+        axis.text.x = element_text(size = 11))
 ```
 
-**Interpretation:** `r round(mean(data$paid == "yes") * 100, 1)`% of students take extra paid classes within the Math course.
+**Interpretation:**
 
----
-
-## 3.3 Activities (Extra-curricular Activities)
-
-```{r activities-analysis}
-# Frequency Table
-activities_freq <- data.frame(
-  Category = names(table(data$activities)),
-  Absolute_Freq = as.vector(table(data$activities)),
-  Relative_Freq = round(as.vector(prop.table(table(data$activities))), 3)
-)
-kable(activities_freq, caption = "Frequency Distribution of Extra-curricular Activities")
-
-# Mode
-cat("\nMode:", names(which.max(table(data$activities))), "\n")
-```
-
-```{r activities-plot, fig.width=6, fig.height=4}
-ggplot(data, aes(x = activities, fill = activities)) +
-  geom_bar() +
-  geom_text(stat = "count", aes(label = ..count..), vjust = -0.5) +
-  scale_fill_manual(values = c("no" = "#D55E00", "yes" = "#009E73")) +
-  scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
-  labs(title = "Distribution of Extra-curricular Activities",
-       x = "Activities",
-       y = "Frequency") +
-  theme_minimal() +
-  theme(legend.position = "none")
-```
-
-**Interpretation:** `r round(mean(data$activities == "yes") * 100, 1)`% of students participate in extra-curricular activities.
-
----
-
-## 3.4 Higher (Wants Higher Education)
-
-```{r higher-analysis}
-# Frequency Table
-higher_freq <- data.frame(
-  Category = names(table(data$higher)),
-  Absolute_Freq = as.vector(table(data$higher)),
-  Relative_Freq = round(as.vector(prop.table(table(data$higher))), 3)
-)
-kable(higher_freq, caption = "Frequency Distribution of Higher Education Aspiration")
-
-# Mode
-cat("\nMode:", names(which.max(table(data$higher))), "\n")
-```
-
-```{r higher-plot, fig.width=6, fig.height=4}
-ggplot(data, aes(x = higher, fill = higher)) +
-  geom_bar() +
-  geom_text(stat = "count", aes(label = ..count..), vjust = -0.5) +
-  scale_fill_manual(values = c("no" = "#D55E00", "yes" = "#009E73")) +
-  scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
-  labs(title = "Distribution of Higher Education Aspiration",
-       x = "Wants Higher Education",
-       y = "Frequency") +
-  theme_minimal() +
-  theme(legend.position = "none")
-```
-
-**Interpretation:** An overwhelming `r round(mean(data$higher == "yes") * 100, 1)`% of students want to pursue higher education.
-
----
-
-## 3.5 Internet (Internet Access at Home)
-
-```{r internet-analysis}
-# Frequency Table
-internet_freq <- data.frame(
-  Category = names(table(data$internet)),
-  Absolute_Freq = as.vector(table(data$internet)),
-  Relative_Freq = round(as.vector(prop.table(table(data$internet))), 3)
-)
-kable(internet_freq, caption = "Frequency Distribution of Internet Access")
-
-# Mode
-cat("\nMode:", names(which.max(table(data$internet))), "\n")
-```
-
-```{r internet-plot, fig.width=6, fig.height=4}
-ggplot(data, aes(x = internet, fill = internet)) +
-  geom_bar() +
-  geom_text(stat = "count", aes(label = ..count..), vjust = -0.5) +
-  scale_fill_manual(values = c("no" = "#D55E00", "yes" = "#009E73")) +
-  scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
-  labs(title = "Distribution of Internet Access at Home",
-       x = "Internet Access",
-       y = "Frequency") +
-  theme_minimal() +
-  theme(legend.position = "none")
-```
-
-**Interpretation:** `r round(mean(data$internet == "yes") * 100, 1)`% of students have internet access at home.
+- **Sex:** The dataset contains `r sum(data$sex == "F")` female (`r round(mean(data$sex == "F") * 100, 1)`%) and `r sum(data$sex == "M")` male (`r round(mean(data$sex == "M") * 100, 1)`%) students - relatively balanced.
+- **Paid classes:** `r round(mean(data$paid == "yes") * 100, 1)`% of students take extra paid math classes.
+- **Activities:** `r round(mean(data$activities == "yes") * 100, 1)`% participate in extra-curricular activities.
+- **Higher education:** An overwhelming `r round(mean(data$higher == "yes") * 100, 1)`% want to pursue higher education.
+- **Internet:** `r round(mean(data$internet == "yes") * 100, 1)`% have internet access at home.
 
 ---
 
