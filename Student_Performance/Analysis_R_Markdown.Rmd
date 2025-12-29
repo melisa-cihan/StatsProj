@@ -1,0 +1,286 @@
+---
+title: "Univariate Analysis - Student Performance Dataset"
+author: "Kezia Fernandes"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    toc: true
+    toc_depth: 1
+    number_sections: true
+geometry: margin=0.6in
+header-includes:
+  - \usepackage{titlesec}
+  - \titlespacing{\section}{0pt}{18pt plus 2pt minus 2pt}{8pt plus 2pt minus 2pt}
+  - \titlespacing{\subsection}{0pt}{12pt plus 2pt minus 2pt}{6pt plus 2pt minus 2pt}
+  - \usepackage{parskip}
+  - \setlength{\parskip}{8pt}
+  - \usepackage{tocloft}
+  - \renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
+  - \setlength{\cftbeforesecskip}{4pt}
+  - \usepackage{caption}
+  - \captionsetup[figure]{skip=8pt}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, 
+                      fig.width = 5, fig.height = 2.5, fig.pos = 'H')
+options(knitr.kable.NA = '-')
+```
+
+```{r load-data, include=FALSE}
+# Load required libraries
+library(dplyr)
+library(ggplot2)
+library(moments)
+library(knitr)
+library(gridExtra)
+
+# Load dataset
+df <- read.csv("D:/Statistics/StatsProj/Student_Performance/student-mat-selected.csv", 
+               sep=",", header=FALSE, skip=1, stringsAsFactors = FALSE)
+
+# Set proper column names
+colnames(df) <- c("sex", "age", "Medu", "traveltime", "studytime", "failures", 
+                  "paid", "activities", "higher", "internet", "famrel", "absences", "G3")
+```
+
+# Introduction
+
+This dataset originates from the secondary education domain and focuses on analyzing factors associated with student academic performance in Mathematics at two Portuguese secondary schools. The data capture multiple dimensions of a student’s profile, combining academic outcomes, demographic characteristics, and socio-educational factors. Information was collected through a combination of school records (such as grades and absences) and student questionnaires, providing both objective and self-reported measures relevant to educational performance.
+
+For this analysis, a subset of 13 variables was selected to reflect key aspects influencing student achievement while maintaining analytical clarity. These variables include demographic attributes (sex, age), family and background indicators (mother’s education level, quality of family relationships), school-related factors (study time, travel time, past failures, absences), support and engagement variables (paid classes, extracurricular activities, internet access), educational aspirations (desire for higher education), and the final Mathematics grade (G3) as the outcome variable.
+
+The dataset contains a mix of binary nominal variables (e.g., sex, internet access), ordinal categorical variables (e.g., study time, travel time, family relationship quality), and numeric discrete variables (e.g., age, failures, absences). The final grade (G3), measured on a scale from 0 to 20, is treated as a continuous numeric variable. This structure makes the dataset well suited for univariate statistical analysis, allowing for an initial exploration of distributions, central tendencies, and variability across different types of educational and socio-demographic factors.
+
+# Continuous Variable: G3 (Final Grade)
+
+## Descriptive Statistics
+
+```{r g3-stats, results='asis'}
+cat("Total =", length(df$G3), "$\\mid$",
+    "Mean =", round(mean(df$G3), 2), "$\\mid$",
+    "Median =", median(df$G3), "$\\mid$",
+    "Mode =", names(which.max(table(df$G3))), "$\\mid$",
+    "SD =", round(sd(df$G3), 2), "$\\mid$",
+    "Variance =", round(var(df$G3), 2), "$\\mid$",
+    "CV =", round(sd(df$G3)/mean(df$G3), 3), "  \n\n")
+
+cat("Five-Number Summary:  \n")
+cat("Min =", min(df$G3), "$\\mid$",
+    "Q1 =", quantile(df$G3, 0.25), "$\\mid$",
+    "Median =", median(df$G3), "$\\mid$",
+    "Q3 =", quantile(df$G3, 0.75), "$\\mid$",
+    "Max =", max(df$G3), "$\\mid$",
+    "IQR =", IQR(df$G3), "  \n\n")
+
+cat("Shape:  \n")
+cat("Skewness =", round(skewness(df$G3), 3), "  \n")
+```
+
+## Visualizations
+
+```{r g3-histogram, fig.cap="Distribution of Final Grades showing left skewness", fig.height=2.5}
+g3_mean <- mean(df$G3)
+g3_median <- median(df$G3)
+
+ggplot(df, aes(x = G3)) +
+  geom_histogram(aes(y = ..density..), binwidth = 1, fill = "steelblue", 
+                 color = "white", alpha = 0.7) +
+  geom_density(color = "darkblue", size = 1) +
+  geom_vline(aes(xintercept = g3_mean), color = "red", linetype = "dashed", size = 1) +
+  geom_vline(aes(xintercept = g3_median), color = "green", linetype = "dashed", size = 1) +
+  labs(title = "Distribution of Final Grades (G3)",
+       subtitle = "Red = Mean (10.42) | Green = Median (11)",
+       x = "Final Grade (0-20)", y = "Density") +
+  scale_x_continuous(breaks = seq(0, 20, 2)) +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 10), 
+        plot.subtitle = element_text(size = 8),
+        axis.title = element_text(size = 9))
+```
+
+## Interpretation
+
+The mean final grade is 10.42 with median of 11. The SD of 4.58 shows considerable variability (CV = 0.44). The skewness of -0.73 indicates a left-skewed distribution with more high-performing students. Grades span 0 to 20, with 50% scoring between 8 and 14 (IQR = 6).
+
+# Numeric Discrete Variable: Absences
+
+## Descriptive Statistics
+
+```{r absences-stats, results='asis'}
+cat("N =", length(df$absences), "$\\mid$",
+    "Mean =", round(mean(df$absences), 2), "$\\mid$",
+    "Median =", median(df$absences), "$\\mid$",
+    "Mode =", names(which.max(table(df$absences))), "$\\mid$",
+    "SD =", round(sd(df$absences), 2), "$\\mid$",
+    "Variance =", round(var(df$absences), 2), "$\\mid$",
+    "CV =", round(sd(df$absences)/mean(df$absences), 3), "  \n\n")
+
+cat("Five-Number Summary:  \n")
+cat("Min =", min(df$absences), "$\\mid$",
+    "Q1 =", quantile(df$absences, 0.25), "$\\mid$",
+    "Median =", median(df$absences), "$\\mid$",
+    "Q3 =", quantile(df$absences, 0.75), "$\\mid$",
+    "Max =", max(df$absences), "$\\mid$",
+    "IQR =", IQR(df$absences), "  \n\n")
+
+cat("Shape:  \n")
+cat("Skewness =", round(skewness(df$absences), 3), "$\\mid$",
+    "Zero absences:", round((sum(df$absences == 0)/length(df$absences))*100, 1), "\\%  \n")
+```
+
+## Visualizations
+
+```{r absences-plots, fig.cap="Distribution and outliers in student absences", fig.height=2.5, fig.width=7}
+abs_mean <- mean(df$absences)
+abs_median <- median(df$absences)
+
+p1 <- ggplot(df, aes(x = absences)) +
+  geom_histogram(binwidth = 2, fill = "salmon", color = "white", alpha = 0.7) +
+  geom_vline(aes(xintercept = abs_mean), color = "red", linetype = "dashed", size = 1) +
+  geom_vline(aes(xintercept = abs_median), color = "green", linetype = "dashed", size = 1) +
+  labs(title = "Distribution of Student Absences",
+       subtitle = "Red = Mean (5.71) | Green = Median (4)",
+       x = "Number of Absences", y = "Frequency") +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 10), 
+        plot.subtitle = element_text(size = 8),
+        axis.title = element_text(size = 9))
+
+p2 <- ggplot(df, aes(x = "", y = absences)) +
+  geom_boxplot(fill = "salmon", alpha = 0.7, outlier.color = "red", outlier.size = 2) +
+  labs(title = "Boxplot of Absences", y = "Number of Absences", x = "") +
+  theme_minimal() +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(),
+        plot.title = element_text(size = 10),
+        axis.title = element_text(size = 9))
+
+grid.arrange(p1, p2, ncol = 2, widths = c(2, 1))
+```
+
+## Interpretation
+
+Students average 5.71 absences with median of 4, but mode is 0 (29.1% had perfect attendance). The SD of 8.0 is notably large with CV = 1.402, indicating extremely high variability. The skewness of 3.658 shows an extremely right-skewed distribution. Absences range from 0 to 75, with 50% having 0-8 absences (IQR = 8).
+
+# Numeric Discrete Variable: Failures
+
+## Descriptive Statistics
+
+```{r failures-stats, results='asis'}
+cat("N =", length(df$failures), "$\\mid$",
+    "Mean =", round(mean(df$failures), 2), "$\\mid$",
+    "Median =", median(df$failures), "$\\mid$",
+    "Mode =", names(which.max(table(df$failures))), "$\\mid$",
+    "SD =", round(sd(df$failures), 2), "$\\mid$",
+    "Variance =", round(var(df$failures), 2), "$\\mid$",
+    "Range =", paste(min(df$failures), "-", max(df$failures)), "  \n")
+```
+
+## Frequency Distribution
+
+```{r failures-freq}
+failures_freq <- data.frame(
+  Failures = names(table(df$failures)),
+  Count = as.vector(table(df$failures)),
+  Percentage = round(as.vector(prop.table(table(df$failures))) * 100, 2),
+  Cumulative = round(cumsum(as.vector(prop.table(table(df$failures)))) * 100, 2)
+)
+kable(failures_freq, caption = "Frequency Distribution of Past Class Failures")
+```
+
+## Visualizations
+
+```{r failures-barplot, fig.cap="Distribution showing most students never failed", fig.height=2, fig.pos='H'}
+ggplot(df, aes(x = factor(failures))) +
+  geom_bar(fill = "darkred", color = "white", alpha = 0.7) +
+  geom_text(stat = "count", aes(label = after_stat(count)), vjust = -0.5, size = 3.5) +
+  labs(title = "Distribution of Past Class Failures",
+       x = "Number of Past Failures", y = "Frequency") +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.1))) +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 10),
+        axis.title = element_text(size = 9))
+```
+
+## Interpretation
+
+Mean is 0.33 failures with median and mode of 0. An impressive 78.99% have never failed a class. Only 8.35% have failed 2+ classes, representing a small at-risk group. The SD of 0.74 indicates limited variability.
+
+# Ordinal Variables: Study Time and Travel Time
+
+**Study time categories:** 1 = <2 hours/week, 2 = 2-5 hours, 3 = 5-10 hours, 4 = >10 hours.
+
+**Travel time categories:** 1 = <15 min, 2 = 15-30 min, 3 = 30-60 min, 4 = >60 min.
+
+## Frequency Distributions
+
+```{r ordinal-freq-setup, include=FALSE}
+studytime_freq <- data.frame(
+  Category = names(table(df$studytime)),
+  Count = as.vector(table(df$studytime)),
+  Percentage = round(as.vector(prop.table(table(df$studytime))) * 100, 2),
+  Cumulative = round(cumsum(as.vector(prop.table(table(df$studytime)))) * 100, 2)
+)
+
+traveltime_freq <- data.frame(
+  Category = names(table(df$traveltime)),
+  Count = as.vector(table(df$traveltime)),
+  Percentage = round(as.vector(prop.table(table(df$traveltime))) * 100, 2),
+  Cumulative = round(cumsum(as.vector(prop.table(table(df$traveltime)))) * 100, 2)
+)
+```
+
+**Table 1: Study Time Distribution**
+
+```{r studytime-table}
+kable(studytime_freq, row.names = FALSE)
+```
+
+**Table 2: Travel Time Distribution**
+
+```{r traveltime-table}
+kable(traveltime_freq, row.names = FALSE)
+```
+
+**Study Time - Central Tendency:**  
+Mode = `r names(which.max(table(df$studytime)))` | Median = `r median(df$studytime)`
+
+**Travel Time - Central Tendency:**  
+Mode = `r names(which.max(table(df$traveltime)))` | Median = `r median(df$traveltime)`
+
+## Visualizations
+
+```{r ordinal-barplots, fig.cap="Study time and travel time distributions", fig.height=2.5, fig.width=7}
+studytime_labels <- c("1: <2 hrs", "2: 2-5 hrs", "3: 5-10 hrs", "4: >10 hrs")
+traveltime_labels <- c("1: <15 min", "2: 15-30 min", "3: 30-60 min", "4: >60 min")
+
+p1 <- ggplot(df, aes(x = factor(studytime))) +
+  geom_bar(fill = "mediumpurple", color = "white", alpha = 0.7) +
+  geom_text(stat = "count", aes(label = after_stat(count)), vjust = -0.5, size = 3.5) +
+  scale_x_discrete(labels = studytime_labels) +
+  labs(title = "Distribution of Weekly Study Time", x = "Study Time Category", y = "Frequency") +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.1))) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+        plot.title = element_text(size = 10),
+        axis.title = element_text(size = 9))
+
+p2 <- ggplot(df, aes(x = factor(traveltime))) +
+  geom_bar(fill = "orange", color = "white", alpha = 0.7) +
+  geom_text(stat = "count", aes(label = after_stat(count)), vjust = -0.5, size = 3.5) +
+  scale_x_discrete(labels = traveltime_labels) +
+  labs(title = "Distribution of Travel Time to School", x = "Travel Time Category", y = "Frequency") +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.1))) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+        plot.title = element_text(size = 10),
+        axis.title = element_text(size = 9))
+
+grid.arrange(p1, p2, ncol = 2)
+```
+
+## Interpretation
+
+**Study Time:** Most common is category 2 (2-5 hours/week) with 50.13% of students. Over 26% study <2 hours weekly (potentially insufficient). Only 6.84% study >10 hours. Median of 2 confirms typical student studies 2-5 hours weekly.
+
+**Travel Time:** Majority (65.06%) live very close to school (<15 min commute). Mode and median are both 1. Additional 27.09% have 15-30 min commutes (92.15% total within 30 min). Only 7.85% face commutes >30 min. Short travel times likely minimize fatigue.
