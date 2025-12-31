@@ -1,6 +1,6 @@
 ---
 title: "Univariate Analysis - Student Performance Dataset"
-author: "Kezia Fernandes"
+author: "Kezia Fernandes, Raju Ahmed"
 date: "`r Sys.Date()`"
 output:
   pdf_document:
@@ -8,7 +8,10 @@ output:
     toc_depth: 1
     number_sections: true
 geometry: margin=0.6in
+bibliography: references.bib
 header-includes:
+  - \usepackage{float}
+  - \floatplacement{figure}{H}
   - \usepackage{titlesec}
   - \titlespacing{\section}{0pt}{18pt plus 2pt minus 2pt}{8pt plus 2pt minus 2pt}
   - \titlespacing{\subsection}{0pt}{12pt plus 2pt minus 2pt}{6pt plus 2pt minus 2pt}
@@ -36,17 +39,12 @@ library(knitr)
 library(gridExtra)
 
 # Load dataset
-df <- read.csv("D:/Statistics/StatsProj/Student_Performance/student-mat-selected.csv", 
-               sep=",", header=FALSE, skip=1, stringsAsFactors = FALSE)
-
-# Set proper column names
-colnames(df) <- c("sex", "age", "Medu", "traveltime", "studytime", "failures", 
-                  "paid", "activities", "higher", "internet", "famrel", "absences", "G3")
+df <- read.csv("student-mat-selected.csv", stringsAsFactors = FALSE)
 ```
 
 # Introduction
 
-This dataset originates from the secondary education domain and focuses on analyzing factors associated with student academic performance in Mathematics at two Portuguese secondary schools. The data capture multiple dimensions of a student’s profile, combining academic outcomes, demographic characteristics, and socio-educational factors. Information was collected through a combination of school records (such as grades and absences) and student questionnaires, providing both objective and self-reported measures relevant to educational performance.
+This dataset originates from the secondary education domain and focuses on analyzing factors associated with student academic performance in Mathematics at two Portuguese secondary schools [@cortez2008student; @cortez2008using]. The data capture multiple dimensions of a student’s profile, combining academic outcomes, demographic characteristics, and socio-educational factors. Information was collected through a combination of school records (such as grades and absences) and student questionnaires, providing both objective and self-reported measures relevant to educational performance.
 
 For this analysis, a subset of 13 variables was selected to reflect key aspects influencing student achievement while maintaining analytical clarity. These variables include demographic attributes (sex, age), family and background indicators (mother’s education level, quality of family relationships), school-related factors (study time, travel time, past failures, absences), support and engagement variables (paid classes, extracurricular activities, internet access), educational aspirations (desire for higher education), and the final Mathematics grade (G3) as the outcome variable.
 
@@ -284,3 +282,185 @@ grid.arrange(p1, p2, ncol = 2)
 **Study Time:** Most common is category 2 (2-5 hours/week) with 50.13% of students. Over 26% study <2 hours weekly (potentially insufficient). Only 6.84% study >10 hours. Median of 2 confirms typical student studies 2-5 hours weekly.
 
 **Travel Time:** Majority (65.06%) live very close to school (<15 min commute). Mode and median are both 1. Additional 27.09% have 15-30 min commutes (92.15% total within 30 min). Only 7.85% face commutes >30 min. Short travel times likely minimize fatigue.
+
+# Binary Variables (Raju): Sex, Paid, Activities, Higher, Internet
+
+## Frequency Distribution
+
+```{r raju-binary-summary-table}
+binary_summary <- data.frame(
+  Variable = c("sex (F/M)", "paid", "activities", "higher", "internet"),
+  Yes_n = c(sum(df$sex == "F"), sum(df$paid == "yes"), sum(df$activities == "yes"),
+            sum(df$higher == "yes"), sum(df$internet == "yes")),
+  Yes_pct = c(round(mean(df$sex == "F")*100,1), round(mean(df$paid == "yes")*100,1),
+              round(mean(df$activities == "yes")*100,1), round(mean(df$higher == "yes")*100,1),
+              round(mean(df$internet == "yes")*100,1)),
+  No_n = c(sum(df$sex == "M"), sum(df$paid == "no"), sum(df$activities == "no"),
+           sum(df$higher == "no"), sum(df$internet == "no")),
+  Mode = c("F", "no", "yes", "yes", "yes")
+)
+kable(binary_summary, caption = "Binary Variables Summary", col.names = c("Variable", "Yes/F (n)", "Yes/F (%)", "No/M (n)", "Mode"))
+```
+
+## Visualization
+
+```{r raju-binary-plot, fig.width=7, fig.height=2.5, fig.pos='H', fig.cap="Distribution of Binary Variables - Percentage of Yes/Female responses"}
+binary_data <- data.frame(
+  Variable = factor(c("Sex (F)", "Paid", "Activities", "Higher Ed", "Internet"),
+                    levels = c("Sex (F)", "Paid", "Activities", "Higher Ed", "Internet")),
+  Percentage = c(mean(df$sex == "F")*100, mean(df$paid == "yes")*100,
+                 mean(df$activities == "yes")*100, mean(df$higher == "yes")*100,
+                 mean(df$internet == "yes")*100)
+)
+ggplot(binary_data, aes(x = Variable, y = Percentage, fill = Variable)) +
+  geom_bar(stat = "identity", width = 0.7) +
+  geom_text(aes(label = paste0(round(Percentage, 1), "%")), vjust = -0.5, size = 3.5) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.15)), limits = c(0, 100)) +
+  scale_fill_brewer(palette = "Set2") +
+  labs(title = "Binary Variables Distribution", x = "", y = "Percentage (%)") +
+  theme_minimal() +
+  theme(legend.position = "none",
+        plot.title = element_text(size = 10),
+        axis.title = element_text(size = 9))
+```
+
+**Interpretation:** Gender is balanced (52.7% female, 47.3% male). Less than half (45.8%) take paid Math classes. Extracurricular participation is evenly split (50.9%). A striking 94.9% aspire to higher education. Internet access is available to 83.3% of students.
+
+# Ordinal Variables (Raju): Medu and Famrel
+
+**Medu categories:** 0 = none, 1 = primary (4th grade), 2 = 5th-9th grade, 3 = secondary, 4 = higher education.
+
+**Famrel categories:** 1 = very bad, 2 = bad, 3 = neutral, 4 = good, 5 = excellent.
+
+## Frequency Distribution
+
+```{r raju-ordinal-table}
+ordinal_summary <- data.frame(
+  Variable = c("Medu (0-4)", "famrel (1-5)"),
+  Mode = c(names(which.max(table(df$Medu))), names(which.max(table(df$famrel)))),
+  Median = c(median(df$Medu), median(df$famrel))
+)
+kable(ordinal_summary, caption = "Ordinal Variables Summary")
+```
+
+## Visualizations
+
+```{r raju-ordinal-plots, fig.width=7, fig.height=2.5, fig.pos='H', fig.cap="Distribution of Ordinal Variables - Mother's Education (left) and Family Relationships (right)"}
+p1 <- ggplot(df, aes(x = factor(Medu), fill = factor(Medu))) +
+  geom_bar() + geom_text(stat = "count", aes(label = after_stat(count)), vjust = -0.5, size = 3) +
+  scale_fill_brewer(palette = "Blues") +
+  scale_x_discrete(labels = c("0", "1", "2", "3", "4")) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
+  labs(title = "Mother's Education (Medu)", x = "Level (0=none to 4=higher)", y = "Count") +
+  theme_minimal() +
+  theme(legend.position = "none",
+        plot.title = element_text(size = 10),
+        axis.title = element_text(size = 9))
+
+p2 <- ggplot(df, aes(x = factor(famrel), fill = factor(famrel))) +
+  geom_bar() + geom_text(stat = "count", aes(label = after_stat(count)), vjust = -0.5, size = 3) +
+  scale_fill_brewer(palette = "Greens") +
+  scale_x_discrete(labels = c("1", "2", "3", "4", "5")) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
+  labs(title = "Family Relationships (famrel)", x = "Quality (1=bad to 5=excellent)", y = "Count") +
+  theme_minimal() +
+  theme(legend.position = "none",
+        plot.title = element_text(size = 10),
+        axis.title = element_text(size = 9))
+
+grid.arrange(p1, p2, ncol = 2)
+```
+
+**Interpretation:** Mother's education (Medu) is skewed toward higher levels with mode=4 (higher education, n=131) and median=3 (secondary). Only 3 mothers have no formal education. Family relationship quality (famrel) is predominantly positive with mode=4 (good, n=195) and median=4. Over 71% report good to excellent relationships, suggesting supportive home environments.
+
+# Numeric Variable (Raju): Age
+
+## Descriptive Statistics
+
+```{r raju-age-stats, results='asis'}
+cat("N =", length(df$age), "$\\mid$",
+    "Mean =", round(mean(df$age), 2), "$\\mid$",
+    "Median =", median(df$age), "$\\mid$",
+    "Mode =", names(which.max(table(df$age))), "$\\mid$",
+    "SD =", round(sd(df$age), 2), "$\\mid$",
+    "Range =", paste(min(df$age), "-", max(df$age)), "$\\mid$",
+    "IQR =", IQR(df$age), "  \n")
+```
+
+## Visualizations
+
+```{r raju-age-plots, fig.width=7, fig.height=2, fig.pos='H', fig.cap="Age Distribution - Histogram with mean line (left) and Boxplot (right)"}
+age_mean <- mean(df$age)
+
+p1 <- ggplot(df, aes(x = age)) +
+  geom_histogram(binwidth = 1, fill = "steelblue", color = "white", alpha = 0.7) +
+  geom_vline(aes(xintercept = age_mean), color = "red", linetype = "dashed", size = 1) +
+  labs(title = "Age Distribution",
+       subtitle = paste("Red = Mean (", round(age_mean, 2), ")", sep = ""),
+       x = "Age", y = "Count") +
+  scale_x_continuous(breaks = 15:22) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.1))) +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 10),
+        plot.subtitle = element_text(size = 8),
+        axis.title = element_text(size = 9))
+
+p2 <- ggplot(df, aes(x = "", y = age)) +
+  geom_boxplot(fill = "steelblue", alpha = 0.7, outlier.color = "red", outlier.size = 2) +
+  labs(title = "Age Boxplot", x = "", y = "Age") +
+  theme_minimal() +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(),
+        plot.title = element_text(size = 10),
+        axis.title = element_text(size = 9))
+
+grid.arrange(p1, p2, ncol = 2, widths = c(2, 1))
+```
+
+**Interpretation:** Ages range from 15-22 years with mean=16.70, median=17, mode=16, and SD=1.28. The distribution is slightly right-skewed with most students in the typical 15-18 age range. Older students (19-22) may have repeated grades. The IQR of 2 years confirms low variability, with potential outliers at the upper end.
+
+# Bivariate Analysis (Raju): Medu vs G3
+
+## Descriptive Statistics
+
+```{r raju-bivariate-stats}
+bivariate_stats <- df %>% group_by(Medu) %>%
+  summarise(n = n(), Mean_G3 = round(mean(G3), 2), SD = round(sd(G3), 2), .groups = "drop")
+kable(bivariate_stats, caption = "Final Grade (G3) Statistics by Mother's Education Level")
+```
+
+```{r raju-bivariate-corr, results='asis'}
+spearman_cor <- cor(df$Medu, df$G3, method = "spearman")
+cat("Spearman correlation: r =", round(spearman_cor, 3), "  \n")
+```
+
+## Visualization
+
+```{r raju-bivariate-plot, fig.width=6, fig.height=3, fig.pos='H', fig.cap="Boxplot of Final Grades by Mother's Education Level"}
+ggplot(df, aes(x = factor(Medu), y = G3, fill = factor(Medu))) +
+  geom_boxplot() +
+  scale_fill_brewer(palette = "Blues") +
+  scale_x_discrete(labels = c("0:None", "1:Primary", "2:5th-9th", "3:Secondary", "4:Higher")) +
+  labs(title = "Final Grade by Mother's Education",
+       subtitle = paste("Spearman r =", round(spearman_cor, 3)),
+       x = "Mother's Education", y = "Final Grade (G3)") +
+  theme_minimal() +
+  theme(legend.position = "none",
+        axis.text.x = element_text(angle = 30, hjust = 1),
+        plot.title = element_text(size = 10),
+        plot.subtitle = element_text(size = 8),
+        axis.title = element_text(size = 9))
+```
+
+**Interpretation:** Spearman correlation r=0.225 indicates a weak positive relationship between mother's education and final grades. The high mean for Medu=0 (13.0) is a small sample artifact (n=3). Excluding this group, grades increase consistently from 8.68 (primary) to 11.76 (higher education), suggesting mother's education is a meaningful predictor of student performance.
+
+# Literature
+
+<div id="refs"></div>
+
+# Appendix
+
+## System Information
+
+```{r sessionInfo}
+sessionInfo()
+```
