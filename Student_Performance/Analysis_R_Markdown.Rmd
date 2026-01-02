@@ -76,7 +76,7 @@ cat("Shape:  \n")
 cat("Skewness =", round(skewness(df$G3), 3), "  \n")
 ```
 
-## Visualizations
+## Visualization
 
 ```{r g3-histogram, fig.cap="Distribution of Final Grades showing left skewness", fig.height=2.5}
 g3_mean <- mean(df$G3)
@@ -128,7 +128,7 @@ cat("Skewness =", round(skewness(df$absences), 3), "$\\mid$",
     "Zero absences:", round((sum(df$absences == 0)/length(df$absences))*100, 1), "\\%  \n")
 ```
 
-## Visualizations
+## Visualization
 
 ```{r absences-plots, fig.cap="Distribution and outliers in student absences", fig.height=2.5, fig.width=7}
 abs_mean <- mean(df$absences)
@@ -175,7 +175,7 @@ cat("N =", length(df$failures), "$\\mid$",
     "Range =", paste(min(df$failures), "-", max(df$failures)), "  \n")
 ```
 
-## Frequency Distribution & Visualizations
+## Frequency Distribution & Visualization
 
 ```{r failures-combined, fig.height=3, fig.width=9}
 
