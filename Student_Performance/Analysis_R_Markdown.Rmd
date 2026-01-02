@@ -37,6 +37,7 @@ library(ggplot2)
 library(moments)
 library(knitr)
 library(gridExtra)
+library(grid)
 
 # Load dataset
 df <- read.csv("student-mat-selected.csv", stringsAsFactors = FALSE)
@@ -174,45 +175,53 @@ cat("N =", length(df$failures), "$\\mid$",
     "Range =", paste(min(df$failures), "-", max(df$failures)), "  \n")
 ```
 
-## Frequency Distribution
+## Frequency Distribution & Visualizations
 
-```{r failures-freq}
+```{r failures-combined, fig.height=3, fig.width=9}
+
 failures_freq <- data.frame(
   Failures = names(table(df$failures)),
   Count = as.vector(table(df$failures)),
   Percentage = round(as.vector(prop.table(table(df$failures))) * 100, 2),
   Cumulative = round(cumsum(as.vector(prop.table(table(df$failures)))) * 100, 2)
 )
-kable(failures_freq, caption = "Frequency Distribution of Past Class Failures")
+
+# Create table grob with smaller font
+table_grob <- tableGrob(failures_freq, rows = NULL, 
+                        theme = ttheme_default(
+                          core = list(fg_params = list(cex = 0.65)),
+                          colhead = list(fg_params = list(cex = 0.7)),
+                          rowhead = list(fg_params = list(cex = 0.65))
+                        ))
+
+# Create plot
+plot_grob <- ggplotGrob(
+  ggplot(df, aes(x = factor(failures))) +
+    geom_bar(fill = "darkred", color = "white", alpha = 0.7) +
+    geom_text(stat = "count", aes(label = after_stat(count)), vjust = -0.5, size = 3.5) +
+    labs(title = "Distribution of Past Class Failures",
+         x = "Number of Past Failures", y = "Frequency") +
+    scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
+    theme_minimal() +
+    theme(plot.title = element_text(size = 10),
+          axis.title = element_text(size = 9))
+)
+
+# Arrange side by side
+grid.arrange(table_grob, plot_grob, ncol = 2, widths = c(0.35, 0.65))
 ```
 
-## Visualizations
-
-```{r failures-barplot, fig.cap="Distribution showing most students never failed", fig.height=2, fig.pos='H'}
-ggplot(df, aes(x = factor(failures))) +
-  geom_bar(fill = "darkred", color = "white", alpha = 0.7) +
-  geom_text(stat = "count", aes(label = after_stat(count)), vjust = -0.5, size = 3.5) +
-  labs(title = "Distribution of Past Class Failures",
-       x = "Number of Past Failures", y = "Frequency") +
-  scale_y_continuous(expand = expansion(mult = c(0, 0.1))) +
-  theme_minimal() +
-  theme(plot.title = element_text(size = 10),
-        axis.title = element_text(size = 9))
-```
 
 ## Interpretation
 
 Mean is 0.33 failures with median and mode of 0. An impressive 78.99% have never failed a class. Only 8.35% have failed 2+ classes, representing a small at-risk group. The SD of 0.74 indicates limited variability.
 
-# Ordinal Variables: Study Time and Travel Time
+# Ordinal Variable: Study Time
 
 **Study time categories:** 1 = <2 hours/week, 2 = 2-5 hours, 3 = 5-10 hours, 4 = >10 hours.
 
-**Travel time categories:** 1 = <15 min, 2 = 15-30 min, 3 = 30-60 min, 4 = >60 min.
-
-## Frequency Distributions
-
-```{r ordinal-freq-setup, include=FALSE}
+## Frequency Distribution & Visualization
+```{r studytime-combined, fig.height=3, fig.width=9}
 studytime_freq <- data.frame(
   Category = names(table(df$studytime)),
   Count = as.vector(table(df$studytime)),
@@ -220,68 +229,40 @@ studytime_freq <- data.frame(
   Cumulative = round(cumsum(as.vector(prop.table(table(df$studytime)))) * 100, 2)
 )
 
-traveltime_freq <- data.frame(
-  Category = names(table(df$traveltime)),
-  Count = as.vector(table(df$traveltime)),
-  Percentage = round(as.vector(prop.table(table(df$traveltime))) * 100, 2),
-  Cumulative = round(cumsum(as.vector(prop.table(table(df$traveltime)))) * 100, 2)
+studytime_labels <- c("1: <2 hrs", "2: 2-5 hrs", "3: 5-10 hrs", "4: >10 hrs")
+
+# Create table grob with smaller font
+table_grob <- tableGrob(studytime_freq, rows = NULL, 
+                        theme = ttheme_default(
+                          core = list(fg_params = list(cex = 0.65)),
+                          colhead = list(fg_params = list(cex = 0.7)),
+                          rowhead = list(fg_params = list(cex = 0.65))
+                        ))
+
+# Create plot
+plot_grob <- ggplotGrob(
+  ggplot(df, aes(x = factor(studytime))) +
+    geom_bar(fill = "mediumpurple", color = "white", alpha = 0.7) +
+    geom_text(stat = "count", aes(label = after_stat(count)), vjust = -0.5, size = 3.5) +
+    scale_x_discrete(labels = studytime_labels) +
+    labs(title = "Distribution of Weekly Study Time", x = "Study Time Category", y = "Frequency") +
+    scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+          plot.title = element_text(size = 10),
+          axis.title = element_text(size = 9))
 )
-```
 
-**Table 1: Study Time Distribution**
-
-```{r studytime-table}
-kable(studytime_freq, row.names = FALSE)
-```
-
-**Table 2: Travel Time Distribution**
-
-```{r traveltime-table}
-kable(traveltime_freq, row.names = FALSE)
+# Arrange side by side
+grid.arrange(table_grob, plot_grob, ncol = 2, widths = c(0.35, 0.65))
 ```
 
 **Study Time - Central Tendency:**  
 Mode = `r names(which.max(table(df$studytime)))` | Median = `r median(df$studytime)`
 
-**Travel Time - Central Tendency:**  
-Mode = `r names(which.max(table(df$traveltime)))` | Median = `r median(df$traveltime)`
-
-## Visualizations
-
-```{r ordinal-barplots, fig.cap="Study time and travel time distributions", fig.height=2.5, fig.width=7}
-studytime_labels <- c("1: <2 hrs", "2: 2-5 hrs", "3: 5-10 hrs", "4: >10 hrs")
-traveltime_labels <- c("1: <15 min", "2: 15-30 min", "3: 30-60 min", "4: >60 min")
-
-p1 <- ggplot(df, aes(x = factor(studytime))) +
-  geom_bar(fill = "mediumpurple", color = "white", alpha = 0.7) +
-  geom_text(stat = "count", aes(label = after_stat(count)), vjust = -0.5, size = 3.5) +
-  scale_x_discrete(labels = studytime_labels) +
-  labs(title = "Distribution of Weekly Study Time", x = "Study Time Category", y = "Frequency") +
-  scale_y_continuous(expand = expansion(mult = c(0, 0.1))) +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
-        plot.title = element_text(size = 10),
-        axis.title = element_text(size = 9))
-
-p2 <- ggplot(df, aes(x = factor(traveltime))) +
-  geom_bar(fill = "orange", color = "white", alpha = 0.7) +
-  geom_text(stat = "count", aes(label = after_stat(count)), vjust = -0.5, size = 3.5) +
-  scale_x_discrete(labels = traveltime_labels) +
-  labs(title = "Distribution of Travel Time to School", x = "Travel Time Category", y = "Frequency") +
-  scale_y_continuous(expand = expansion(mult = c(0, 0.1))) +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
-        plot.title = element_text(size = 10),
-        axis.title = element_text(size = 9))
-
-grid.arrange(p1, p2, ncol = 2)
-```
-
 ## Interpretation
 
-**Study Time:** Most common is category 2 (2-5 hours/week) with 50.13% of students. Over 26% study <2 hours weekly (potentially insufficient). Only 6.84% study >10 hours. Median of 2 confirms typical student studies 2-5 hours weekly.
-
-**Travel Time:** Majority (65.06%) live very close to school (<15 min commute). Mode and median are both 1. Additional 27.09% have 15-30 min commutes (92.15% total within 30 min). Only 7.85% face commutes >30 min. Short travel times likely minimize fatigue.
+Most common is category 2 (2-5 hours/week) with 50.13% of students. Over 26% study <2 hours weekly (potentially insufficient). Only 6.84% study >10 hours. Median of 2 confirms typical student studies 2-5 hours weekly.
 
 # Binary Variables (Raju): Sex, Paid, Activities, Higher, Internet
 
