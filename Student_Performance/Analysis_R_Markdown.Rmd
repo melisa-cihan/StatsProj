@@ -8,7 +8,7 @@ output:
     toc_depth: 1
     number_sections: true
 geometry: margin=0.6in
-bibliography: references.bib
+bibliography: #references.bib
 header-includes:
   - \usepackage{float}
   - \floatplacement{figure}{H}
@@ -37,10 +37,9 @@ library(ggplot2)
 library(moments)
 library(knitr)
 library(gridExtra)
-library(grid)
 
 # Load dataset
-df <- read.csv("student-mat-selected.csv", stringsAsFactors = FALSE)
+df <- read.csv("/Users/melisacihan/Desktop/Statistical Computing/StatsProj/Student_Performance/student-mat-selected.csv", stringsAsFactors = FALSE)
 ```
 
 # Introduction
@@ -76,7 +75,7 @@ cat("Shape:  \n")
 cat("Skewness =", round(skewness(df$G3), 3), "  \n")
 ```
 
-## Visualization
+## Visualizations
 
 ```{r g3-histogram, fig.cap="Distribution of Final Grades showing left skewness", fig.height=2.5}
 g3_mean <- mean(df$G3)
@@ -128,7 +127,7 @@ cat("Skewness =", round(skewness(df$absences), 3), "$\\mid$",
     "Zero absences:", round((sum(df$absences == 0)/length(df$absences))*100, 1), "\\%  \n")
 ```
 
-## Visualization
+## Visualizations
 
 ```{r absences-plots, fig.cap="Distribution and outliers in student absences", fig.height=2.5, fig.width=7}
 abs_mean <- mean(df$absences)
@@ -175,53 +174,45 @@ cat("N =", length(df$failures), "$\\mid$",
     "Range =", paste(min(df$failures), "-", max(df$failures)), "  \n")
 ```
 
-## Frequency Distribution & Visualization
+## Frequency Distribution
 
-```{r failures-combined, fig.height=3, fig.width=9}
-
+```{r failures-freq}
 failures_freq <- data.frame(
   Failures = names(table(df$failures)),
   Count = as.vector(table(df$failures)),
   Percentage = round(as.vector(prop.table(table(df$failures))) * 100, 2),
   Cumulative = round(cumsum(as.vector(prop.table(table(df$failures)))) * 100, 2)
 )
-
-# Create table grob with smaller font
-table_grob <- tableGrob(failures_freq, rows = NULL, 
-                        theme = ttheme_default(
-                          core = list(fg_params = list(cex = 0.65)),
-                          colhead = list(fg_params = list(cex = 0.7)),
-                          rowhead = list(fg_params = list(cex = 0.65))
-                        ))
-
-# Create plot
-plot_grob <- ggplotGrob(
-  ggplot(df, aes(x = factor(failures))) +
-    geom_bar(fill = "darkred", color = "white", alpha = 0.7) +
-    geom_text(stat = "count", aes(label = after_stat(count)), vjust = -0.5, size = 3.5) +
-    labs(title = "Distribution of Past Class Failures",
-         x = "Number of Past Failures", y = "Frequency") +
-    scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
-    theme_minimal() +
-    theme(plot.title = element_text(size = 10),
-          axis.title = element_text(size = 9))
-)
-
-# Arrange side by side
-grid.arrange(table_grob, plot_grob, ncol = 2, widths = c(0.35, 0.65))
+kable(failures_freq, caption = "Frequency Distribution of Past Class Failures")
 ```
 
+## Visualizations
+
+```{r failures-barplot, fig.cap="Distribution showing most students never failed", fig.height=2, fig.pos='H'}
+ggplot(df, aes(x = factor(failures))) +
+  geom_bar(fill = "darkred", color = "white", alpha = 0.7) +
+  geom_text(stat = "count", aes(label = after_stat(count)), vjust = -0.5, size = 3.5) +
+  labs(title = "Distribution of Past Class Failures",
+       x = "Number of Past Failures", y = "Frequency") +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.1))) +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 10),
+        axis.title = element_text(size = 9))
+```
 
 ## Interpretation
 
 Mean is 0.33 failures with median and mode of 0. An impressive 78.99% have never failed a class. Only 8.35% have failed 2+ classes, representing a small at-risk group. The SD of 0.74 indicates limited variability.
 
-# Ordinal Variable: Study Time
+# Ordinal Variables: Study Time and Travel Time
 
 **Study time categories:** 1 = <2 hours/week, 2 = 2-5 hours, 3 = 5-10 hours, 4 = >10 hours.
 
-## Frequency Distribution & Visualization
-```{r studytime-combined, fig.height=3, fig.width=9}
+**Travel time categories:** 1 = <15 min, 2 = 15-30 min, 3 = 30-60 min, 4 = >60 min.
+
+## Frequency Distributions
+
+```{r ordinal-freq-setup, include=FALSE}
 studytime_freq <- data.frame(
   Category = names(table(df$studytime)),
   Count = as.vector(table(df$studytime)),
@@ -229,40 +220,68 @@ studytime_freq <- data.frame(
   Cumulative = round(cumsum(as.vector(prop.table(table(df$studytime)))) * 100, 2)
 )
 
-studytime_labels <- c("1: <2 hrs", "2: 2-5 hrs", "3: 5-10 hrs", "4: >10 hrs")
-
-# Create table grob with smaller font
-table_grob <- tableGrob(studytime_freq, rows = NULL, 
-                        theme = ttheme_default(
-                          core = list(fg_params = list(cex = 0.65)),
-                          colhead = list(fg_params = list(cex = 0.7)),
-                          rowhead = list(fg_params = list(cex = 0.65))
-                        ))
-
-# Create plot
-plot_grob <- ggplotGrob(
-  ggplot(df, aes(x = factor(studytime))) +
-    geom_bar(fill = "mediumpurple", color = "white", alpha = 0.7) +
-    geom_text(stat = "count", aes(label = after_stat(count)), vjust = -0.5, size = 3.5) +
-    scale_x_discrete(labels = studytime_labels) +
-    labs(title = "Distribution of Weekly Study Time", x = "Study Time Category", y = "Frequency") +
-    scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
-    theme_minimal() +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
-          plot.title = element_text(size = 10),
-          axis.title = element_text(size = 9))
+traveltime_freq <- data.frame(
+  Category = names(table(df$traveltime)),
+  Count = as.vector(table(df$traveltime)),
+  Percentage = round(as.vector(prop.table(table(df$traveltime))) * 100, 2),
+  Cumulative = round(cumsum(as.vector(prop.table(table(df$traveltime)))) * 100, 2)
 )
+```
 
-# Arrange side by side
-grid.arrange(table_grob, plot_grob, ncol = 2, widths = c(0.35, 0.65))
+**Table 1: Study Time Distribution**
+
+```{r studytime-table}
+kable(studytime_freq, row.names = FALSE)
+```
+
+**Table 2: Travel Time Distribution**
+
+```{r traveltime-table}
+kable(traveltime_freq, row.names = FALSE)
 ```
 
 **Study Time - Central Tendency:**  
 Mode = `r names(which.max(table(df$studytime)))` | Median = `r median(df$studytime)`
 
+**Travel Time - Central Tendency:**  
+Mode = `r names(which.max(table(df$traveltime)))` | Median = `r median(df$traveltime)`
+
+## Visualizations
+
+```{r ordinal-barplots, fig.cap="Study time and travel time distributions", fig.height=2.5, fig.width=7}
+studytime_labels <- c("1: <2 hrs", "2: 2-5 hrs", "3: 5-10 hrs", "4: >10 hrs")
+traveltime_labels <- c("1: <15 min", "2: 15-30 min", "3: 30-60 min", "4: >60 min")
+
+p1 <- ggplot(df, aes(x = factor(studytime))) +
+  geom_bar(fill = "mediumpurple", color = "white", alpha = 0.7) +
+  geom_text(stat = "count", aes(label = after_stat(count)), vjust = -0.5, size = 3.5) +
+  scale_x_discrete(labels = studytime_labels) +
+  labs(title = "Distribution of Weekly Study Time", x = "Study Time Category", y = "Frequency") +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.1))) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+        plot.title = element_text(size = 10),
+        axis.title = element_text(size = 9))
+
+p2 <- ggplot(df, aes(x = factor(traveltime))) +
+  geom_bar(fill = "orange", color = "white", alpha = 0.7) +
+  geom_text(stat = "count", aes(label = after_stat(count)), vjust = -0.5, size = 3.5) +
+  scale_x_discrete(labels = traveltime_labels) +
+  labs(title = "Distribution of Travel Time to School", x = "Travel Time Category", y = "Frequency") +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.1))) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+        plot.title = element_text(size = 10),
+        axis.title = element_text(size = 9))
+
+grid.arrange(p1, p2, ncol = 2)
+```
+
 ## Interpretation
 
-Most common is category 2 (2-5 hours/week) with 50.13% of students. Over 26% study <2 hours weekly (potentially insufficient). Only 6.84% study >10 hours. Median of 2 confirms typical student studies 2-5 hours weekly.
+**Study Time:** Most common is category 2 (2-5 hours/week) with 50.13% of students. Over 26% study <2 hours weekly (potentially insufficient). Only 6.84% study >10 hours. Median of 2 confirms typical student studies 2-5 hours weekly.
+
+**Travel Time:** Majority (65.06%) live very close to school (<15 min commute). Mode and median are both 1. Additional 27.09% have 15-30 min commutes (92.15% total within 30 min). Only 7.85% face commutes >30 min. Short travel times likely minimize fatigue.
 
 # Binary Variables (Raju): Sex, Paid, Activities, Higher, Internet
 
@@ -547,6 +566,176 @@ ggplot(df, aes(x = G3, fill = paid_labeled)) +
 ```
 
 **Interpretation:** Students without paid classes have a slightly higher mean grade (10.75) compared to those with paid classes (9.90), a difference of 0.85 points. The t-test (p=`r round(t_test_result$p.value, 4)`) suggests this difference is marginally significant. However, this counterintuitive finding likely reflects selection bias: students struggling academically are more likely to enroll in paid classes for remedial support. The density plot shows substantial overlap between distributions, indicating paid classes do not universally improve performance and may serve students who are already behind.
+
+# Bivariate Analysis (Melisa): G3 vs Internet Access
+
+## Descriptive Statistics
+```{r melisa-internet-stats}
+df$internet_labeled <- factor(df$internet, levels = c("no", "yes"), labels = c("No", "Yes"))
+
+internet_stats <- df %>% 
+  group_by(internet_labeled) %>% 
+  summarise(
+    n = n(),
+    Mean_G3 = round(mean(G3), 2),
+    Median_G3 = median(G3),
+    SD = round(sd(G3), 2),
+    .groups = "drop"
+  )
+
+kable(internet_stats, caption = "Final Grade Statistics by Internet Access", 
+      col.names = c("Internet Access", "n", "Mean G3", "Median G3", "SD"))
+
+```
+
+## Visualization
+```{r melisa-internet-plot, fig.width=6, fig.height=3, fig.pos='H', fig.cap="Density distribution comparing final grades with and without internet access"}
+p1 <- ggplot(df, aes(x = internet, y = G3, fill = internet)) +
+  geom_boxplot(alpha = 0.7, outlier.colour = "red", outlier.shape = 1) +
+  
+  # Add the Mean as a white diamond to see skewness (Mean vs Median)
+  stat_summary(fun = mean, geom = "point", shape = 23, size = 3, fill = "white") +
+  
+  labs(title = "Internet Access vs. Final Grades",
+       subtitle = "White diamond indicates the Mean value",
+       x = "Internet Access at Home",
+       y = "Final Grade (0-20)") +
+  theme_minimal() +
+  scale_fill_manual(values = c("#E69F00", "#56B4E9")) + # Colorblind friendly palette
+  theme(legend.position = "none")
+
+# Visualization: Density Plot
+# Replaced 'data' with 'df'
+p2 <- ggplot(df, aes(x = G3, fill = internet)) +
+  geom_density(alpha = 0.5) +
+  labs(title = "Grade Density Distribution",
+       x = "Final Grade",
+       y = "Density") +
+  theme_minimal() +
+  scale_fill_manual(values = c("#E69F00", "#56B4E9"))
+
+# Display plots
+library(patchwork)
+p1 + p2
+```
+
+**Interpretation**
+Students with internet access at home have a higher mean grade (10.62) compared to those without (9.41), a difference of roughly 1.2 points. The boxplot visually confirms this shift, with the "Yes" group showing a higher median and mean (white diamond). This suggests that access to digital resources may positively influence academic performance, potentially by facilitating research and study materials.
+
+# Bivariate Analysis (Melisa): G3 vs Wish For Higher Education
+
+## Descriptive Statistics
+```{r melisa-higher-stats}
+df$higher_labeled <- factor(df$higher, levels = c("no", "yes"), labels = c("No", "Yes"))
+
+higher_stats <- df %>% 
+  group_by(higher_labeled) %>% 
+  summarise(
+    n = n(),
+    Mean_G3 = round(mean(G3), 2),
+    Median_G3 = median(G3),
+    SD = round(sd(G3), 2),
+    .groups = "drop"
+  )
+
+kable(higher_stats, caption = "Final Grade Statistics by Higher Education Goal", 
+      col.names = c("Wants Higher Education", "n", "Mean G3", "Median G3", "SD"))
+```
+
+## Visualization
+
+```{r melisa-higher-plot-boxplot, fig.width=6, fig.height=4, fig.cap="Boxplot of Final Grades by Higher Education Goal"}
+# Boxplot visualization
+# We use 'df' here to be consistent with the previous stats chunk
+ggplot(df, aes(x = higher, y = G3, fill = higher)) +
+  geom_boxplot(alpha = 0.7) +
+  labs(title = "Final Grade Distribution by Higher Education Goal",
+       x = "Wants Higher Education?", 
+       y = "Final Grade (0-20)") +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+```
+
+**Interpretation**
+The analysis of the descriptive statistics and the boxplot reveals a clear distinction between the two groups. Students who intend to pursue higher education (`higher = yes`) demonstrate a noticeably higher level of academic performance compared to those who do not (`higher = no`).
+
+Observing the descriptive table, the mean and median grades for the "Yes" group are elevated, suggesting that motivation for future studies is a strong factor in current performance. The boxplot further confirms this trend:
+
+* **Median Differences:** The median line for the "Yes" group is positioned higher on the G3 scale than that of the "No" group.
+* **Distribution Shift:** The entire interquartile range (the box) for students aiming for higher education is shifted upwards, indicating that the bulk of these students perform better than the majority of the "No" group.
+* **Variability:** While both groups show some spread, the lower quartile for the "Yes" group is often higher than the median of the "No" group, highlighting a significant gap in achievement.
+
+Overall, the desire to attend higher education appears to be positively associated with higher final grades.
+
+# Bivariate Analysis (Melisa): Family Relationship vs Age
+
+## Descriptive Statistics
+```{r melisa-rebellion-stats}
+age_famrel_stats <- df %>% 
+  group_by(age) %>% 
+  summarise(
+    n = n(),
+    Mean_FamRel = round(mean(famrel), 2),
+    Median_FamRel = median(famrel),
+    SD = round(sd(famrel), 2),
+    .groups = "drop"
+  )
+
+kable(age_famrel_stats, caption = "Family Relationship Quality Statistics by Student Age", 
+      col.names = c("Age", "n", "Mean FamRel", "Median FamRel", "SD"))
+```
+
+## Visualization
+```{r rebellion-heatmap, fig.width=6, fig.height=5, fig.pos='H', fig.cap="Heatmap of Student Age vs. Family Relationship Quality"}
+rebellion_counts <- df %>%
+  count(age, famrel)
+
+ggplot(rebellion_counts, aes(x = factor(age), y = factor(famrel), fill = n)) +
+  geom_tile(color = "white", lwd = 0.5) +
+  geom_text(aes(label = n), color = "black", size = 3) +
+  scale_fill_gradient(low = "#FFF5F0", high = "#CB181D") +
+  labs(title = "Does Family Relationship Quality Deteriorate in Adolescence?\nThe Rebellion Hypothesis",
+       subtitle = "Count of students by Age and Family Relationship (1=Very Bad, 5=Excellent)",
+       x = "Student Age",
+       y = "Family Relationship Quality",
+       fill = "Student\nCount") +
+  theme_minimal() +
+  coord_fixed(ratio = 1)
+```
+
+**Interpretation**
+The heatmap suggests that family relationships do not significantly deteriorate with age, contradicting the "Rebellion Hypothesis." The highest concentration of students consistently reports good to excellent relationships (levels 4 and 5) across all age groups, with no clear downward trend in relationship quality as students get older.
+
+# Bivariate Analysis (Melisa): Simple Linear Regression G3~Absences
+
+## Linearity Check
+```{r melisa-linearity-check-absences, fig.width=6, fig.height=4, fig.cap="Scatter plot of Absences vs. Final Grade to check linearity"}
+ggplot(df, aes(x = absences, y = G3)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm", color = "red", se = FALSE) +
+  labs(title = "Linearity Check: Absences vs Final Grade",
+       x = "Number of Absences", 
+       y = "Final Grade (G3)") +
+  theme_minimal()
+```
+
+## Regression Output
+```{r linear-regression-model}
+lm_absences <- lm(G3 ~ absences, data = df)
+summary(lm_absences)
+
+library(broom)
+tidy_stats <- tidy(lm_absences)
+kable(tidy_stats, caption = "Linear Regression Results: Impact of Absences on Final Grade", digits = 3)
+```
+
+**Interpretation**
+The simple linear regression analysis was conducted to assess the effect of student absences on final mathematics grades (G3).
+
+* **Significance:** The p-value for the absences coefficient is **0.497**. Since this value is significantly higher than the standard alpha level of 0.05, the relationship is **not statistically significant**.
+* **Coefficient (Slope):** The estimated coefficient for absences is **0.020**. While this technically suggests a negligible positive increase in grades per absence, the lack of statistical significance indicates that this result is likely due to chance or random variation rather than a meaningful effect.
+* **Conclusion:** Based on this model, we cannot conclude that the number of absences is a reliable predictor of the final mathematics grade. The data suggests that absences alone do not have a significant linear impact on academic performance in this context.
 
 # Literature
 
