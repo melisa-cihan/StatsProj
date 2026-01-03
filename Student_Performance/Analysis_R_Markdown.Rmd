@@ -265,42 +265,55 @@ Mode = `r names(which.max(table(df$studytime)))` | Median = `r median(df$studyti
 Most common is category 2 (2-5 hours/week) with 50.13% of students. Over 26% study <2 hours weekly (potentially insufficient). Only 6.84% study >10 hours. Median of 2 confirms typical student studies 2-5 hours weekly.
  
 # Binary Variables (Raju): Paid Extra Classes, Higher Education Aspiration, Internet Access
- 
-## Frequency Distribution
- 
-```{r raju-binary-summary-table}
+
+## Frequency Distribution & Visualization
+
+```{r raju-binary-combined, fig.width=9, fig.height=2.5, fig.pos='H', fig.cap="Binary Variables - Summary Table (left) and Grouped Bar Chart (right)"}
 binary_summary <- data.frame(
   Variable = c("Paid Extra Classes", "Higher Education Aspiration", "Internet Access"),
-  Yes_n = c(sum(df$paid == "yes"), sum(df$higher == "yes"), sum(df$internet == "yes")),
-  Yes_pct = c(round(mean(df$paid == "yes")*100,1), round(mean(df$higher == "yes")*100,1),
-              round(mean(df$internet == "yes")*100,1)),
-  No_n = c(sum(df$paid == "no"), sum(df$higher == "no"), sum(df$internet == "no")),
+  Count_Yes = c(sum(df$paid == "yes"), sum(df$higher == "yes"), sum(df$internet == "yes")),
+  Count_No = c(sum(df$paid == "no"), sum(df$higher == "no"), sum(df$internet == "no")),
   Mode = c("no", "yes", "yes")
 )
-kable(binary_summary, caption = "Binary Variables Summary", col.names = c("Variable", "Yes (n)", "Yes (%)", "No (n)", "Mode"))
-```
- 
-## Visualization
- 
-```{r raju-binary-plot, fig.width=5, fig.height=2, fig.pos='H', fig.cap="Distribution of Binary Variables - Percentage of Yes responses"}
-binary_data <- data.frame(
-  Variable = factor(c("Paid Extra Classes", "Higher Education\nAspiration", "Internet Access"),
-                    levels = c("Paid Extra Classes", "Higher Education\nAspiration", "Internet Access")),
-  Percentage = c(mean(df$paid == "yes")*100, mean(df$higher == "yes")*100,
-                 mean(df$internet == "yes")*100)
+
+# Create table grob
+table_grob <- tableGrob(binary_summary, rows = NULL,
+                        cols = c("Variable", "Yes", "No", "Mode"),
+                        theme = ttheme_default(
+                          core = list(fg_params = list(cex = 0.6)),
+                          colhead = list(fg_params = list(cex = 0.65))
+                        ))
+
+# Create grouped bar chart data
+binary_long <- data.frame(
+  Variable = rep(c("Paid Extra\nClasses", "Higher Education\nAspiration", "Internet\nAccess"), each = 2),
+  Response = rep(c("Yes", "No"), 3),
+  Count = c(sum(df$paid == "yes"), sum(df$paid == "no"),
+            sum(df$higher == "yes"), sum(df$higher == "no"),
+            sum(df$internet == "yes"), sum(df$internet == "no"))
 )
-ggplot(binary_data, aes(x = Variable, y = Percentage, fill = Variable)) +
-  geom_bar(stat = "identity", width = 0.7) +
-  geom_text(aes(label = paste0(round(Percentage, 1), "%")), vjust = -0.5, size = 3.5) +
-  scale_y_continuous(expand = expansion(mult = c(0, 0.15)), limits = c(0, 100)) +
-  scale_fill_brewer(palette = "Set2") +
-  labs(title = "Binary Variables Distribution", x = "", y = "Percentage (%)") +
-  theme_minimal() +
-  theme(legend.position = "none",
-        plot.title = element_text(size = 10),
-        axis.title = element_text(size = 9))
+binary_long$Variable <- factor(binary_long$Variable,
+                               levels = c("Paid Extra\nClasses", "Higher Education\nAspiration", "Internet\nAccess"))
+binary_long$Response <- factor(binary_long$Response, levels = c("Yes", "No"))
+
+plot_grob <- ggplotGrob(
+  ggplot(binary_long, aes(x = Variable, y = Count, fill = Response)) +
+    geom_bar(stat = "identity", position = "dodge", width = 0.7) +
+    geom_text(aes(label = Count), position = position_dodge(width = 0.7), vjust = -0.5, size = 3) +
+    scale_fill_manual(values = c("Yes" = "#66c2a5", "No" = "#fc8d62")) +
+    scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
+    labs(title = "Binary Variables Distribution", x = "", y = "Count") +
+    theme_minimal() +
+    theme(legend.position = "bottom",
+          legend.title = element_blank(),
+          plot.title = element_text(size = 10),
+          axis.title = element_text(size = 9),
+          axis.text.x = element_text(size = 8))
+)
+
+grid.arrange(table_grob, plot_grob, ncol = 2, widths = c(0.45, 0.55))
 ```
- 
+
 **Interpretation:** Less than half (45.8%) take paid extra Math classes. A striking 94.9% aspire to higher education. Internet access is available to 83.3% of students.
  
 # Ordinal Variables (Raju): Mother's Education (Medu) and Family Relationship (Famrel)
@@ -384,39 +397,44 @@ grid.arrange(p1, p2, ncol = 2, widths = c(2, 1))
  
 **Interpretation:** Ages range from 15-22 years with mean=16.70, median=17, mode=16, and SD=1.28. The distribution is slightly right-skewed with most students in the typical 15-18 age range. Older students (19-22) may have repeated grades. The IQR of 2 years confirms low variability, with potential outliers at the upper end.
  
-# Bivariate Analysis (Raju): Medu vs G3
- 
-## Descriptive Statistics
- 
-```{r raju-bivariate-stats}
+# Bivariate Analysis (Raju): Mother's Education vs Final Grade (G3)
+
+## Descriptive Statistics & Visualization
+
+```{r raju-bivariate-combined, fig.width=9, fig.height=2.5, fig.pos='H', fig.cap="Final Grade by Mother's Education - Summary Table (left) and Boxplot (right)"}
 bivariate_stats <- df %>% group_by(Medu) %>%
   summarise(n = n(), Mean_G3 = round(mean(G3), 2), SD = round(sd(G3), 2), .groups = "drop")
-kable(bivariate_stats, caption = "Final Grade (G3) Statistics by Mother's Education Level")
-```
- 
-```{r raju-bivariate-corr, results='asis'}
+
 spearman_cor <- cor(df$Medu, df$G3, method = "spearman")
-cat("Spearman correlation: r =", round(spearman_cor, 3), "  \n")
+
+# Create table grob
+table_grob <- tableGrob(bivariate_stats, rows = NULL,
+                        cols = c("Medu", "n", "Mean G3", "SD"),
+                        theme = ttheme_default(
+                          core = list(fg_params = list(cex = 0.65)),
+                          colhead = list(fg_params = list(cex = 0.7))
+                        ))
+
+# Create boxplot
+plot_grob <- ggplotGrob(
+  ggplot(df, aes(x = factor(Medu), y = G3, fill = factor(Medu))) +
+    geom_boxplot() +
+    scale_fill_brewer(palette = "Blues") +
+    scale_x_discrete(labels = c("0:None", "1:Primary", "2:5th-9th", "3:Secondary", "4:Higher")) +
+    labs(title = "Final Grade by Mother's Education",
+         subtitle = paste("Spearman r =", round(spearman_cor, 3)),
+         x = "Mother's Education", y = "Final Grade (G3)") +
+    theme_minimal() +
+    theme(legend.position = "none",
+          axis.text.x = element_text(angle = 30, hjust = 1, size = 8),
+          plot.title = element_text(size = 10),
+          plot.subtitle = element_text(size = 8),
+          axis.title = element_text(size = 9))
+)
+
+grid.arrange(table_grob, plot_grob, ncol = 2, widths = c(0.35, 0.65))
 ```
- 
-## Visualization
- 
-```{r raju-bivariate-plot, fig.width=6, fig.height=3, fig.pos='H', fig.cap="Boxplot of Final Grades by Mother's Education Level"}
-ggplot(df, aes(x = factor(Medu), y = G3, fill = factor(Medu))) +
-  geom_boxplot() +
-  scale_fill_brewer(palette = "Blues") +
-  scale_x_discrete(labels = c("0:None", "1:Primary", "2:5th-9th", "3:Secondary", "4:Higher")) +
-  labs(title = "Final Grade by Mother's Education",
-       subtitle = paste("Spearman r =", round(spearman_cor, 3)),
-       x = "Mother's Education", y = "Final Grade (G3)") +
-  theme_minimal() +
-  theme(legend.position = "none",
-        axis.text.x = element_text(angle = 30, hjust = 1),
-        plot.title = element_text(size = 10),
-        plot.subtitle = element_text(size = 8),
-        axis.title = element_text(size = 9))
-```
- 
+
 **Interpretation:** Spearman correlation r=0.225 indicates a weak positive relationship between mother's education and final grades. The high mean for Medu=0 (13.0) is a small sample artifact (n=3). Excluding this group, grades increase consistently from 8.68 (primary) to 11.76 (higher education), suggesting mother's education is a meaningful predictor of student performance.
  
 # Bivariate Analysis (Hrusheekesh): Study Time vs G3
@@ -701,17 +719,7 @@ The simple linear regression analysis was conducted to assess the effect of stud
 * **Significance:** The p-value for the absences coefficient is **0.497**. Since this value is significantly higher than the standard alpha level of 0.05, the relationship is **not statistically significant**.
 * **Coefficient (Slope):** The estimated coefficient for absences is **0.020**. While this technically suggests a negligible positive increase in grades per absence, the lack of statistical significance indicates that this result is likely due to chance or random variation rather than a meaningful effect.
 * **Conclusion:** Based on this model, we cannot conclude that the number of absences is a reliable predictor of the final mathematics grade. The data suggests that absences alone do not have a significant linear impact on academic performance in this context.
- 
+
 # Literature
- 
+
 <div id="refs"></div>
- 
-# Appendix
- 
-## System Information
- 
-```{r sessionInfo}
-sessionInfo()
-```
- 
- 
