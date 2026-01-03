@@ -533,6 +533,176 @@ ggplot(df, aes(x = G3, fill = paid_labeled)) +
 
 **Interpretation:** Students without paid classes have a slightly higher mean grade (10.75) compared to those with paid classes (9.90), a difference of 0.85 points. The t-test (p=`r round(t_test_result$p.value, 4)`) suggests this difference is marginally significant. However, this counterintuitive finding likely reflects selection bias: students struggling academically are more likely to enroll in paid classes for remedial support. The density plot shows substantial overlap between distributions, indicating paid classes do not universally improve performance and may serve students who are already behind.
 
+# Bivariate Analysis (Melisa): G3 vs Internet Access
+
+## Descriptive Statistics
+```{r melisa-internet-stats}
+df$internet_labeled <- factor(df$internet, levels = c("no", "yes"), labels = c("No", "Yes"))
+
+internet_stats <- df %>% 
+  group_by(internet_labeled) %>% 
+  summarise(
+    n = n(),
+    Mean_G3 = round(mean(G3), 2),
+    Median_G3 = median(G3),
+    SD = round(sd(G3), 2),
+    .groups = "drop"
+  )
+
+kable(internet_stats, caption = "Final Grade Statistics by Internet Access", 
+      col.names = c("Internet Access", "n", "Mean G3", "Median G3", "SD"))
+
+```
+
+## Visualization
+```{r melisa-internet-plot, fig.width=6, fig.height=3, fig.pos='H', fig.cap="Density distribution comparing final grades with and without internet access"}
+p1 <- ggplot(df, aes(x = internet, y = G3, fill = internet)) +
+  geom_boxplot(alpha = 0.7, outlier.colour = "red", outlier.shape = 1) +
+  
+  # Add the Mean as a white diamond to see skewness (Mean vs Median)
+  stat_summary(fun = mean, geom = "point", shape = 23, size = 3, fill = "white") +
+  
+  labs(title = "Internet Access vs. Final Grades",
+       subtitle = "White diamond indicates the Mean value",
+       x = "Internet Access at Home",
+       y = "Final Grade (0-20)") +
+  theme_minimal() +
+  scale_fill_manual(values = c("#E69F00", "#56B4E9")) + # Colorblind friendly palette
+  theme(legend.position = "none")
+
+# Visualization: Density Plot
+# Replaced 'data' with 'df'
+p2 <- ggplot(df, aes(x = G3, fill = internet)) +
+  geom_density(alpha = 0.5) +
+  labs(title = "Grade Density Distribution",
+       x = "Final Grade",
+       y = "Density") +
+  theme_minimal() +
+  scale_fill_manual(values = c("#E69F00", "#56B4E9"))
+
+# Display plots
+library(patchwork)
+p1 + p2
+```
+
+**Interpretation**
+Students with internet access at home have a higher mean grade (10.62) compared to those without (9.41), a difference of roughly 1.2 points. The boxplot visually confirms this shift, with the "Yes" group showing a higher median and mean (white diamond). This suggests that access to digital resources may positively influence academic performance, potentially by facilitating research and study materials.
+
+# Bivariate Analysis (Melisa): G3 vs Wish For Higher Education
+
+## Descriptive Statistics
+```{r melisa-higher-stats}
+df$higher_labeled <- factor(df$higher, levels = c("no", "yes"), labels = c("No", "Yes"))
+
+higher_stats <- df %>% 
+  group_by(higher_labeled) %>% 
+  summarise(
+    n = n(),
+    Mean_G3 = round(mean(G3), 2),
+    Median_G3 = median(G3),
+    SD = round(sd(G3), 2),
+    .groups = "drop"
+  )
+
+kable(higher_stats, caption = "Final Grade Statistics by Higher Education Goal", 
+      col.names = c("Wants Higher Education", "n", "Mean G3", "Median G3", "SD"))
+```
+
+## Visualization
+
+```{r melisa-higher-plot-boxplot, fig.width=6, fig.height=4, fig.cap="Boxplot of Final Grades by Higher Education Goal"}
+# Boxplot visualization
+# We use 'df' here to be consistent with the previous stats chunk
+ggplot(df, aes(x = higher, y = G3, fill = higher)) +
+  geom_boxplot(alpha = 0.7) +
+  labs(title = "Final Grade Distribution by Higher Education Goal",
+       x = "Wants Higher Education?", 
+       y = "Final Grade (0-20)") +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+```
+
+**Interpretation**
+The analysis of the descriptive statistics and the boxplot reveals a clear distinction between the two groups. Students who intend to pursue higher education (`higher = yes`) demonstrate a noticeably higher level of academic performance compared to those who do not (`higher = no`).
+
+Observing the descriptive table, the mean and median grades for the "Yes" group are elevated, suggesting that motivation for future studies is a strong factor in current performance. The boxplot further confirms this trend:
+
+* **Median Differences:** The median line for the "Yes" group is positioned higher on the G3 scale than that of the "No" group.
+* **Distribution Shift:** The entire interquartile range (the box) for students aiming for higher education is shifted upwards, indicating that the bulk of these students perform better than the majority of the "No" group.
+* **Variability:** While both groups show some spread, the lower quartile for the "Yes" group is often higher than the median of the "No" group, highlighting a significant gap in achievement.
+
+Overall, the desire to attend higher education appears to be positively associated with higher final grades.
+
+# Bivariate Analysis (Melisa): Family Relationship vs Age
+
+## Descriptive Statistics
+```{r melisa-rebellion-stats}
+age_famrel_stats <- df %>% 
+  group_by(age) %>% 
+  summarise(
+    n = n(),
+    Mean_FamRel = round(mean(famrel), 2),
+    Median_FamRel = median(famrel),
+    SD = round(sd(famrel), 2),
+    .groups = "drop"
+  )
+
+kable(age_famrel_stats, caption = "Family Relationship Quality Statistics by Student Age", 
+      col.names = c("Age", "n", "Mean FamRel", "Median FamRel", "SD"))
+```
+
+## Visualization
+```{r rebellion-heatmap, fig.width=6, fig.height=5, fig.pos='H', fig.cap="Heatmap of Student Age vs. Family Relationship Quality"}
+rebellion_counts <- df %>%
+  count(age, famrel)
+
+ggplot(rebellion_counts, aes(x = factor(age), y = factor(famrel), fill = n)) +
+  geom_tile(color = "white", lwd = 0.5) +
+  geom_text(aes(label = n), color = "black", size = 3) +
+  scale_fill_gradient(low = "#FFF5F0", high = "#CB181D") +
+  labs(title = "Does Family Relationship Quality Deteriorate in Adolescence?\nThe Rebellion Hypothesis",
+       subtitle = "Count of students by Age and Family Relationship (1=Very Bad, 5=Excellent)",
+       x = "Student Age",
+       y = "Family Relationship Quality",
+       fill = "Student\nCount") +
+  theme_minimal() +
+  coord_fixed(ratio = 1)
+```
+
+**Interpretation**
+The heatmap suggests that family relationships do not significantly deteriorate with age, contradicting the "Rebellion Hypothesis." The highest concentration of students consistently reports good to excellent relationships (levels 4 and 5) across all age groups, with no clear downward trend in relationship quality as students get older.
+
+# Bivariate Analysis (Melisa): Simple Linear Regression G3~Absences
+
+## Linearity Check
+```{r melisa-linearity-check-absences, fig.width=6, fig.height=4, fig.cap="Scatter plot of Absences vs. Final Grade to check linearity"}
+ggplot(df, aes(x = absences, y = G3)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm", color = "red", se = FALSE) +
+  labs(title = "Linearity Check: Absences vs Final Grade",
+       x = "Number of Absences", 
+       y = "Final Grade (G3)") +
+  theme_minimal()
+```
+
+## Regression Output
+```{r linear-regression-model}
+lm_absences <- lm(G3 ~ absences, data = df)
+summary(lm_absences)
+
+library(broom)
+tidy_stats <- tidy(lm_absences)
+kable(tidy_stats, caption = "Linear Regression Results: Impact of Absences on Final Grade", digits = 3)
+```
+
+**Interpretation**
+The simple linear regression analysis was conducted to assess the effect of student absences on final mathematics grades (G3).
+
+* **Significance:** The p-value for the absences coefficient is **0.497**. Since this value is significantly higher than the standard alpha level of 0.05, the relationship is **not statistically significant**.
+* **Coefficient (Slope):** The estimated coefficient for absences is **0.020**. While this technically suggests a negligible positive increase in grades per absence, the lack of statistical significance indicates that this result is likely due to chance or random variation rather than a meaningful effect.
+* **Conclusion:** Based on this model, we cannot conclude that the number of absences is a reliable predictor of the final mathematics grade. The data suggests that absences alone do not have a significant linear impact on academic performance in this context.
+
 # Literature
 
 <div id="refs"></div>
