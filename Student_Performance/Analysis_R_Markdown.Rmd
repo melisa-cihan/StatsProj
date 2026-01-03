@@ -177,7 +177,7 @@ cat("N =", length(df$failures), "$\\mid$",
  
 ## Frequency Distribution & Visualization
  
-```{r failures-combined, fig.height=3, fig.width=9}
+```{r failures-combined,fig.cap="Frequency distribution and visualization of past class failures", fig.height=3, fig.width=9}
  
 failures_freq <- data.frame(
   Failures = names(table(df$failures)),
@@ -221,7 +221,7 @@ Mean is 0.33 failures with median and mode of 0. An impressive 78.99% have never
 **Study time categories:** 1 = <2 hours/week, 2 = 2-5 hours, 3 = 5-10 hours, 4 = >10 hours.
  
 ## Frequency Distribution & Visualization
-```{r studytime-combined, fig.height=3, fig.width=9}
+```{r studytime-combined,fig.cap="Frequency distribution and visualization of weekly study time", fig.height=3, fig.width=9}
 studytime_freq <- data.frame(
   Category = names(table(df$studytime)),
   Count = as.vector(table(df$studytime)),
