@@ -283,33 +283,29 @@ grid.arrange(p1, p2, ncol = 2)
 
 **Travel Time:** Majority (65.06%) live very close to school (<15 min commute). Mode and median are both 1. Additional 27.09% have 15-30 min commutes (92.15% total within 30 min). Only 7.85% face commutes >30 min. Short travel times likely minimize fatigue.
 
-# Binary Variables (Raju): Sex, Paid, Activities, Higher, Internet
+# Binary Variables (Raju): Paid Extra Classes, Higher Education Aspiration, Internet Access
 
 ## Frequency Distribution
 
 ```{r raju-binary-summary-table}
 binary_summary <- data.frame(
-  Variable = c("sex (F/M)", "paid", "activities", "higher", "internet"),
-  Yes_n = c(sum(df$sex == "F"), sum(df$paid == "yes"), sum(df$activities == "yes"),
-            sum(df$higher == "yes"), sum(df$internet == "yes")),
-  Yes_pct = c(round(mean(df$sex == "F")*100,1), round(mean(df$paid == "yes")*100,1),
-              round(mean(df$activities == "yes")*100,1), round(mean(df$higher == "yes")*100,1),
+  Variable = c("Paid Extra Classes", "Higher Education Aspiration", "Internet Access"),
+  Yes_n = c(sum(df$paid == "yes"), sum(df$higher == "yes"), sum(df$internet == "yes")),
+  Yes_pct = c(round(mean(df$paid == "yes")*100,1), round(mean(df$higher == "yes")*100,1),
               round(mean(df$internet == "yes")*100,1)),
-  No_n = c(sum(df$sex == "M"), sum(df$paid == "no"), sum(df$activities == "no"),
-           sum(df$higher == "no"), sum(df$internet == "no")),
-  Mode = c("F", "no", "yes", "yes", "yes")
+  No_n = c(sum(df$paid == "no"), sum(df$higher == "no"), sum(df$internet == "no")),
+  Mode = c("no", "yes", "yes")
 )
-kable(binary_summary, caption = "Binary Variables Summary", col.names = c("Variable", "Yes/F (n)", "Yes/F (%)", "No/M (n)", "Mode"))
+kable(binary_summary, caption = "Binary Variables Summary", col.names = c("Variable", "Yes (n)", "Yes (%)", "No (n)", "Mode"))
 ```
 
 ## Visualization
 
-```{r raju-binary-plot, fig.width=7, fig.height=2.5, fig.pos='H', fig.cap="Distribution of Binary Variables - Percentage of Yes/Female responses"}
+```{r raju-binary-plot, fig.width=5, fig.height=2, fig.pos='H', fig.cap="Distribution of Binary Variables - Percentage of Yes responses"}
 binary_data <- data.frame(
-  Variable = factor(c("Sex (F)", "Paid", "Activities", "Higher Ed", "Internet"),
-                    levels = c("Sex (F)", "Paid", "Activities", "Higher Ed", "Internet")),
-  Percentage = c(mean(df$sex == "F")*100, mean(df$paid == "yes")*100,
-                 mean(df$activities == "yes")*100, mean(df$higher == "yes")*100,
+  Variable = factor(c("Paid Extra Classes", "Higher Education\nAspiration", "Internet Access"),
+                    levels = c("Paid Extra Classes", "Higher Education\nAspiration", "Internet Access")),
+  Percentage = c(mean(df$paid == "yes")*100, mean(df$higher == "yes")*100,
                  mean(df$internet == "yes")*100)
 )
 ggplot(binary_data, aes(x = Variable, y = Percentage, fill = Variable)) +
@@ -324,34 +320,23 @@ ggplot(binary_data, aes(x = Variable, y = Percentage, fill = Variable)) +
         axis.title = element_text(size = 9))
 ```
 
-**Interpretation:** Gender is balanced (52.7% female, 47.3% male). Less than half (45.8%) take paid Math classes. Extracurricular participation is evenly split (50.9%). A striking 94.9% aspire to higher education. Internet access is available to 83.3% of students.
+**Interpretation:** Less than half (45.8%) take paid extra Math classes. A striking 94.9% aspire to higher education. Internet access is available to 83.3% of students.
 
-# Ordinal Variables (Raju): Medu and Famrel
+# Ordinal Variables (Raju): Mother's Education (Medu) and Family Relationship (Famrel)
 
-**Medu categories:** 0 = none, 1 = primary (4th grade), 2 = 5th-9th grade, 3 = secondary, 4 = higher education.
+**Mother's Education categories:** 0 = none, 1 = primary (4th grade), 2 = 5th-9th grade, 3 = secondary, 4 = higher education.
 
-**Famrel categories:** 1 = very bad, 2 = bad, 3 = neutral, 4 = good, 5 = excellent.
+**Family Relationship categories:** 1 = very bad, 2 = bad, 3 = neutral, 4 = good, 5 = excellent.
 
-## Frequency Distribution
+## Visualization
 
-```{r raju-ordinal-table}
-ordinal_summary <- data.frame(
-  Variable = c("Medu (0-4)", "famrel (1-5)"),
-  Mode = c(names(which.max(table(df$Medu))), names(which.max(table(df$famrel)))),
-  Median = c(median(df$Medu), median(df$famrel))
-)
-kable(ordinal_summary, caption = "Ordinal Variables Summary")
-```
-
-## Visualizations
-
-```{r raju-ordinal-plots, fig.width=7, fig.height=2.5, fig.pos='H', fig.cap="Distribution of Ordinal Variables - Mother's Education (left) and Family Relationships (right)"}
+```{r raju-ordinal-plots, fig.width=7, fig.height=2.5, fig.pos='H', fig.cap="Distribution of Ordinal Variables - Mother's Education (left) and Family Relationship (right)"}
 p1 <- ggplot(df, aes(x = factor(Medu), fill = factor(Medu))) +
   geom_bar() + geom_text(stat = "count", aes(label = after_stat(count)), vjust = -0.5, size = 3) +
   scale_fill_brewer(palette = "Blues") +
   scale_x_discrete(labels = c("0", "1", "2", "3", "4")) +
   scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
-  labs(title = "Mother's Education (Medu)", x = "Level (0=none to 4=higher)", y = "Count") +
+  labs(title = "Mother's Education", x = "Level (0=none to 4=higher)", y = "Count") +
   theme_minimal() +
   theme(legend.position = "none",
         plot.title = element_text(size = 10),
@@ -362,7 +347,7 @@ p2 <- ggplot(df, aes(x = factor(famrel), fill = factor(famrel))) +
   scale_fill_brewer(palette = "Greens") +
   scale_x_discrete(labels = c("1", "2", "3", "4", "5")) +
   scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
-  labs(title = "Family Relationships (famrel)", x = "Quality (1=bad to 5=excellent)", y = "Count") +
+  labs(title = "Family Relationship", x = "Quality (1=bad to 5=excellent)", y = "Count") +
   theme_minimal() +
   theme(legend.position = "none",
         plot.title = element_text(size = 10),
@@ -371,7 +356,7 @@ p2 <- ggplot(df, aes(x = factor(famrel), fill = factor(famrel))) +
 grid.arrange(p1, p2, ncol = 2)
 ```
 
-**Interpretation:** Mother's education (Medu) is skewed toward higher levels with mode=4 (higher education, n=131) and median=3 (secondary). Only 3 mothers have no formal education. Family relationship quality (famrel) is predominantly positive with mode=4 (good, n=195) and median=4. Over 71% report good to excellent relationships, suggesting supportive home environments.
+**Interpretation:** Mother's education is skewed toward higher levels with mode=4 (higher education, n=131) and median=3 (secondary education). Only 3 mothers have no formal education. Family relationship quality is predominantly positive with mode=4 (good, n=195) and median=4 (good). Over 71% report good to excellent relationships, suggesting supportive home environments.
 
 # Numeric Variable (Raju): Age
 
@@ -387,7 +372,7 @@ cat("N =", length(df$age), "$\\mid$",
     "IQR =", IQR(df$age), "  \n")
 ```
 
-## Visualizations
+## Visualization
 
 ```{r raju-age-plots, fig.width=7, fig.height=2, fig.pos='H', fig.cap="Age Distribution - Histogram with mean line (left) and Boxplot (right)"}
 age_mean <- mean(df$age)
