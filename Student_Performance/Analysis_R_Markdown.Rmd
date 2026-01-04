@@ -269,22 +269,7 @@ Most common is category 2 (2-5 hours/week) with 50.13% of students. Over 26% stu
 
 ## Frequency Distribution & Visualization
 
-```{r raju-binary-combined, fig.width=9, fig.height=2.5, fig.pos='H', fig.cap="Binary Variables - Summary Table (left) and Grouped Bar Chart (right)"}
-binary_summary <- data.frame(
-  Variable = c("Paid Extra Classes", "Higher Education Aspiration", "Internet Access"),
-  Count_Yes = c(sum(df$paid == "yes"), sum(df$higher == "yes"), sum(df$internet == "yes")),
-  Count_No = c(sum(df$paid == "no"), sum(df$higher == "no"), sum(df$internet == "no")),
-  Mode = c("no", "yes", "yes")
-)
-
-# Create table grob
-table_grob <- tableGrob(binary_summary, rows = NULL,
-                        cols = c("Variable", "Yes", "No", "Mode"),
-                        theme = ttheme_default(
-                          core = list(fg_params = list(cex = 0.6)),
-                          colhead = list(fg_params = list(cex = 0.65))
-                        ))
-
+```{r raju-binary-combined, fig.width=7, fig.height=2.5, fig.pos='H', fig.cap="Binary Variables - Grouped Bar Chart"}
 # Create grouped bar chart data
 binary_long <- data.frame(
   Variable = rep(c("Paid Extra\nClasses", "Higher Education\nAspiration", "Internet\nAccess"), each = 2),
@@ -297,22 +282,18 @@ binary_long$Variable <- factor(binary_long$Variable,
                                levels = c("Paid Extra\nClasses", "Higher Education\nAspiration", "Internet\nAccess"))
 binary_long$Response <- factor(binary_long$Response, levels = c("Yes", "No"))
 
-plot_grob <- ggplotGrob(
-  ggplot(binary_long, aes(x = Variable, y = Count, fill = Response)) +
-    geom_bar(stat = "identity", position = "dodge", width = 0.7) +
-    geom_text(aes(label = Count), position = position_dodge(width = 0.7), vjust = -0.5, size = 3) +
-    scale_fill_manual(values = c("Yes" = "#66c2a5", "No" = "#fc8d62")) +
-    scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
-    labs(title = "Binary Variables Distribution", x = "", y = "Count") +
-    theme_minimal() +
-    theme(legend.position = "bottom",
-          legend.title = element_blank(),
-          plot.title = element_text(size = 10),
-          axis.title = element_text(size = 9),
-          axis.text.x = element_text(size = 8))
-)
-
-grid.arrange(table_grob, plot_grob, ncol = 2, widths = c(0.45, 0.55))
+ggplot(binary_long, aes(x = Variable, y = Count, fill = Response)) +
+  geom_bar(stat = "identity", position = "dodge", width = 0.7) +
+  geom_text(aes(label = Count), position = position_dodge(width = 0.7), vjust = -0.5, size = 3) +
+  scale_fill_manual(values = c("Yes" = "#66c2a5", "No" = "#fc8d62")) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
+  labs(title = "Binary Variables Distribution", x = "", y = "Count") +
+  theme_minimal() +
+  theme(legend.position = "bottom",
+        legend.title = element_blank(),
+        plot.title = element_text(size = 10),
+        axis.title = element_text(size = 9),
+        axis.text.x = element_text(size = 8))
 ```
 
 **Interpretation:** Less than half (45.8%) take paid extra Math classes. A striking 94.9% aspire to higher education. Internet access is available to 83.3% of students.
