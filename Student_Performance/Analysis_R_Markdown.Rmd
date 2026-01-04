@@ -1,5 +1,5 @@
 ---
-title: "Univariate Analysis - Student Performance Dataset"
+title: "Statistical Analysis - Student Performance Dataset"
 author: "Kezia Fernandes, Raju Ahmed, Melisa Cihan, Hrusheekesh Sawarkar"
 date: "`r Sys.Date()`"
 output:
