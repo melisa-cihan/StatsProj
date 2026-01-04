@@ -636,7 +636,7 @@ Overall, the desire to attend higher education appears to be positively associat
  
 ## Family Relationship vs Age
 
-```{r melisa-rebellion-combined, fig.width=9, fig.height=5.5, fig.pos='H', fig.cap="Family Relationship vs Age: Statistics (left) and Heatmap (right)"}
+```{r melisa-rebellion-combined, fig.width=9, fig.height=3, fig.pos='H', fig.cap="Family Relationship vs Age: Statistics (left) and Heatmap (right)"}
 # 1. Prepare Stats
 age_famrel_stats <- df %>% 
   group_by(age) %>% 
