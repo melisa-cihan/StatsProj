@@ -26,7 +26,7 @@ header-includes:
  
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE,
-                      fig.width = 5, fig.height = 2.5, fig.pos = 'H')
+                      fig.width = 5, fig.height = 2.5, fig.pos = 'H', dpi = 300)
 options(knitr.kable.NA = '-')
 ```
  
@@ -559,12 +559,12 @@ grid.arrange(p_table, p_plot, ncol = 2, widths = c(0.35, 0.65))
  
 # Bivariate Analysis (Melisa): G3 vs Internet Access
  
-## Descriptive Statistics
-```{r melisa-internet-stats}
+```{r melisa-internet-combined, fig.width=9, fig.height=3, fig.pos='H', fig.cap="Internet Access vs G3: Statistics (left) and Boxplot (right)"}
+# 1. Prepare Data and Stats
 df$internet_labeled <- factor(df$internet, levels = c("no", "yes"), labels = c("No", "Yes"))
- 
-internet_stats <- df %>%
-  group_by(internet_labeled) %>%
+
+internet_stats <- df %>% 
+  group_by(internet_labeled) %>% 
   summarise(
     n = n(),
     Mean_G3 = round(mean(G3), 2),
@@ -572,53 +572,47 @@ internet_stats <- df %>%
     SD = round(sd(G3), 2),
     .groups = "drop"
   )
- 
-kable(internet_stats, caption = "Final Grade Statistics by Internet Access",
-      col.names = c("Internet Access", "n", "Mean G3", "Median G3", "SD"))
- 
-```
- 
-## Visualization
-```{r melisa-internet-plot, fig.width=6, fig.height=3, fig.pos='H', fig.cap="Density distribution comparing final grades with and without internet access"}
-p1 <- ggplot(df, aes(x = internet, y = G3, fill = internet)) +
+
+# 2. Create Table Grob
+table_grob <- tableGrob(internet_stats, rows = NULL, 
+                        cols = c("Internet", "n", "Mean", "Median", "SD"),
+                        theme = ttheme_default(
+                          core = list(fg_params = list(cex = 0.65)),
+                          colhead = list(fg_params = list(cex = 0.7))
+                        ))
+
+# 3. Create Plot Grob (Boxplot with Mean Diamond)
+plot_grob <- ggplot(df, aes(x = internet_labeled, y = G3, fill = internet_labeled)) +
   geom_boxplot(alpha = 0.7, outlier.colour = "red", outlier.shape = 1) +
-  
-  # Add the Mean as a white diamond to see skewness (Mean vs Median)
   stat_summary(fun = mean, geom = "point", shape = 23, size = 3, fill = "white") +
-  
   labs(title = "Internet Access vs. Final Grades",
-       subtitle = "White diamond indicates the Mean value",
-       x = "Internet Access at Home",
-       y = "Final Grade (0-20)") +
+       subtitle = "White diamond indicates Mean",
+       x = "Internet Access",
+       y = "Final Grade (G3)") +
   theme_minimal() +
-  scale_fill_manual(values = c("#E69F00", "#56B4E9")) + # Colorblind friendly palette
-  theme(legend.position = "none")
+  scale_fill_manual(values = c("#E69F00", "#56B4E9")) +
+  theme(legend.position = "none",
+        plot.title = element_text(size = 10),
+        plot.subtitle = element_text(size = 8),
+        axis.title = element_text(size = 9),
+        axis.text = element_text(size = 8))
+
+# 4. Arrange side by side
+grid.arrange(table_grob, plot_grob, ncol = 2, widths = c(0.35, 0.65))
+
  
-# Visualization: Density Plot
-p2 <- ggplot(df, aes(x = G3, fill = internet)) +
-  geom_density(alpha = 0.5) +
-  labs(title = "Grade Density Distribution",
-       x = "Final Grade",
-       y = "Density") +
-  theme_minimal() +
-  scale_fill_manual(values = c("#E69F00", "#56B4E9"))
- 
-# Display plots
-library(patchwork)
-p1 + p2
 ```
  
-**Interpretation**
-Students with internet access at home have a higher mean grade (10.62) compared to those without (9.41), a difference of roughly 1.2 points. The boxplot visually confirms this shift, with the "Yes" group showing a higher median and mean (white diamond). This suggests that access to digital resources may positively influence academic performance, potentially by facilitating research and study materials.
+**Interpretation:** Students with internet access at home have a higher mean grade (10.62) compared to those without (9.41), a difference of roughly 1.2 points. The boxplot visually confirms this shift, with the "Yes" group showing a higher median and mean (white diamond). This suggests that access to digital resources may positively influence academic performance, potentially by facilitating research and study materials.
  
 # Bivariate Analysis (Melisa): G3 vs Wish For Higher Education
  
-## Descriptive Statistics
-```{r melisa-higher-stats}
+```{r melisa-higher-combined, fig.width=9, fig.height=3, fig.pos='H', fig.cap="Higher Education Goal vs G3: Statistics (left) and Boxplot (right)"}
+# 1. Prepare Data and Stats
 df$higher_labeled <- factor(df$higher, levels = c("no", "yes"), labels = c("No", "Yes"))
- 
-higher_stats <- df %>%
-  group_by(higher_labeled) %>%
+
+higher_stats <- df %>% 
+  group_by(higher_labeled) %>% 
   summarise(
     n = n(),
     Mean_G3 = round(mean(G3), 2),
@@ -626,28 +620,33 @@ higher_stats <- df %>%
     SD = round(sd(G3), 2),
     .groups = "drop"
   )
- 
-kable(higher_stats, caption = "Final Grade Statistics by Higher Education Goal",
-      col.names = c("Wants Higher Education", "n", "Mean G3", "Median G3", "SD"))
-```
- 
-## Visualization
- 
-```{r melisa-higher-plot-boxplot, fig.width=6, fig.height=4, fig.cap="Boxplot of Final Grades by Higher Education Goal"}
-# Boxplot visualization
-# We use 'df' here to be consistent with the previous stats chunk
-ggplot(df, aes(x = higher, y = G3, fill = higher)) +
-  geom_boxplot(alpha = 0.7) +
-  labs(title = "Final Grade Distribution by Higher Education Goal",
-       x = "Wants Higher Education?",
-       y = "Final Grade (0-20)") +
+
+# 2. Create Table Grob (Small text size)
+table_grob <- tableGrob(higher_stats, rows = NULL, 
+                        cols = c("Higher Education?", "n", "Mean", "Median", "SD"),
+                        theme = ttheme_default(
+                          core = list(fg_params = list(cex = 0.65)),
+                          colhead = list(fg_params = list(cex = 0.7))
+                        ))
+
+# 3. Create Plot Grob
+plot_grob <- ggplot(df, aes(x = higher_labeled, y = G3, fill = higher_labeled)) +
+  geom_boxplot(alpha = 0.7, outlier.colour = "red") +
+  labs(title = "Final Grade by Higher Education Goal",
+       x = "Wants Higher Education?", 
+       y = "Final Grade (G3)") +
   theme_minimal() +
-  theme(legend.position = "none")
- 
+  scale_fill_brewer(palette = "Set2") +
+  theme(legend.position = "none",
+        plot.title = element_text(size = 10),
+        axis.title = element_text(size = 9),
+        axis.text = element_text(size = 8))
+
+# 4. Arrange side by side
+grid.arrange(table_grob, plot_grob, ncol = 2, widths = c(0.35, 0.65))
 ```
- 
-**Interpretation**
-The analysis of the descriptive statistics and the boxplot reveals a clear distinction between the two groups. Students who intend to pursue higher education (`higher = yes`) demonstrate a noticeably higher level of academic performance compared to those who do not (`higher = no`).
+
+**Interpretation:** The analysis of the descriptive statistics and the boxplot reveals a clear distinction between the two groups. Students who intend to pursue higher education (`higher = yes`) demonstrate a noticeably higher level of academic performance compared to those who do not (`higher = no`).
  
 Observing the descriptive table, the mean and median grades for the "Yes" group are elevated, suggesting that motivation for future studies is a strong factor in current performance. The boxplot further confirms this trend:
  
@@ -658,73 +657,137 @@ Observing the descriptive table, the mean and median grades for the "Yes" group 
 Overall, the desire to attend higher education appears to be positively associated with higher final grades.
  
 # Bivariate Analysis (Melisa): Family Relationship vs Age
- 
-## Descriptive Statistics
-```{r melisa-rebellion-stats}
-age_famrel_stats <- df %>%
-  group_by(age) %>%
+
+```{r melisa-rebellion-combined, fig.width=9, fig.height=5.5, fig.pos='H', fig.cap="Family Relationship vs Age: Statistics (left) and Heatmap (right)"}
+# 1. Prepare Stats
+age_famrel_stats <- df %>% 
+  group_by(age) %>% 
   summarise(
     n = n(),
-    Mean_FamRel = round(mean(famrel), 2),
-    Median_FamRel = median(famrel),
+    Mean = round(mean(famrel), 2),
+    Median = median(famrel),
     SD = round(sd(famrel), 2),
     .groups = "drop"
   )
- 
-kable(age_famrel_stats, caption = "Family Relationship Quality Statistics by Student Age",
-      col.names = c("Age", "n", "Mean FamRel", "Median FamRel", "SD"))
-```
- 
-## Visualization
-```{r rebellion-heatmap, fig.width=6, fig.height=5, fig.pos='H', fig.cap="Heatmap of Student Age vs. Family Relationship Quality"}
-rebellion_counts <- df %>%
-  count(age, famrel)
- 
-ggplot(rebellion_counts, aes(x = factor(age), y = factor(famrel), fill = n)) +
+
+# 2. Create Table Grob (Small text size)
+table_grob <- tableGrob(age_famrel_stats, rows = NULL, 
+                        cols = c("Age", "n", "Mean", "Median", "SD"),
+                        theme = ttheme_default(
+                          core = list(fg_params = list(cex = 0.65)),
+                          colhead = list(fg_params = list(cex = 0.7))
+                        ))
+
+# 3. Create Plot Grob (Heatmap)
+rebellion_counts <- df %>% count(age, famrel)
+
+plot_grob <- ggplot(rebellion_counts, aes(x = factor(age), y = factor(famrel), fill = n)) +
   geom_tile(color = "white", lwd = 0.5) +
-  geom_text(aes(label = n), color = "black", size = 3) +
+  geom_text(aes(label = n), color = "black", size = 2.5) +
   scale_fill_gradient(low = "#FFF5F0", high = "#CB181D") +
-  labs(title = "Does Family Relationship Quality Deteriorate in Adolescence?\nThe Rebellion Hypothesis",
-       subtitle = "Count of students by Age and Family Relationship (1=Very Bad, 5=Excellent)",
+  labs(title = "Rebellion Hypothesis Heatmap",
        x = "Student Age",
-       y = "Family Relationship Quality",
-       fill = "Student\nCount") +
+       y = "FamRel (1=Bad, 5=Excel)",
+       fill = "Count") +
   theme_minimal() +
-  coord_fixed(ratio = 1)
+  coord_fixed(ratio = 1) + 
+  theme(legend.position = "right",
+        legend.title = element_text(size = 8),
+        legend.text = element_text(size = 7),
+        legend.key.width = unit(0.3, "cm"),
+        plot.title = element_text(size = 10),
+        axis.title = element_text(size = 9),
+        axis.text = element_text(size = 8))
+
+# 4. Arrange side by side
+grid.arrange(table_grob, plot_grob, ncol = 2, widths = c(0.4, 0.6))
 ```
  
 **Interpretation**
 The heatmap suggests that family relationships do not significantly deteriorate with age, contradicting the "Rebellion Hypothesis." The highest concentration of students consistently reports good to excellent relationships (levels 4 and 5) across all age groups, with no clear downward trend in relationship quality as students get older.
  
 # Bivariate Analysis (Melisa): Simple Linear Regression G3~Absences
- 
-## Linearity Check
-```{r melisa-linearity-check-absences, fig.width=6, fig.height=4, fig.cap="Scatter plot of Absences vs. Final Grade to check linearity"}
-ggplot(df, aes(x = absences, y = G3)) +
+
+```{r melisa-regression-combined, fig.width=9, fig.height=3.5, dev='pdf', fig.pos='H', fig.cap="Prerequisite Linearity Check (left) and Regression Coefficients (right)"}
+library(grid)
+library(gridExtra)
+library(broom)
+
+# 1. Run Model
+lm_absences <- lm(G3 ~ absences, data = df)
+
+# 2. Create Plot Grob (Left Side: Linearity Check)
+plot_grob <- ggplot(df, aes(x = absences, y = G3)) +
   geom_point(alpha = 0.5) +
   geom_smooth(method = "lm", color = "red", se = FALSE) +
-  labs(title = "Linearity Check: Absences vs Final Grade",
-       x = "Number of Absences",
+  labs(title = "Prerequisite: Linearity Check",
+       x = "Absences", 
        y = "Final Grade (G3)") +
-  theme_minimal()
-```
- 
-## Regression Output
-```{r linear-regression-model}
-lm_absences <- lm(G3 ~ absences, data = df)
-summary(lm_absences)
- 
-library(broom)
+  theme_minimal() +
+  theme(plot.title = element_text(size = 11),
+        axis.title = element_text(size = 10),
+        axis.text = element_text(size = 9))
+
+# 3. Create Table Grob (Right Side: Clean Coefficients Table)
+# We use broom::tidy to get the data instead of raw text, avoiding clipping issues.
 tidy_stats <- tidy(lm_absences)
-kable(tidy_stats, caption = "Linear Regression Results: Impact of Absences on Final Grade", digits = 3)
+tidy_stats$term[tidy_stats$term == "(Intercept)"] <- "Intercept"
+
+# Round values for cleaner display
+tidy_stats$estimate <- round(tidy_stats$estimate, 3)
+tidy_stats$std.error <- round(tidy_stats$std.error, 3)
+tidy_stats$statistic <- round(tidy_stats$statistic, 3)
+tidy_stats$p.value <- round(tidy_stats$p.value, 3)
+
+# Create the table object
+# We add a title row manually to the top of the table
+table_grob <- tableGrob(tidy_stats, rows = NULL, 
+                        theme = ttheme_default(
+                          core = list(fg_params = list(cex = 0.8)),
+                          colhead = list(fg_params = list(cex = 0.9, fontface = "bold"))
+                        ))
+
+# Add a header title above the table using textGrob
+header_text <- textGrob("Regression Coefficients: G3 ~ Absences", 
+                        gp = gpar(fontsize = 10, fontface = "bold"))
+
+# Combine header and table vertically
+right_side <- arrangeGrob(header_text, table_grob, heights = c(0.1, 0.9))
+
+# 4. Arrange Plot (Left) and Table (Right)
+grid.arrange(plot_grob, right_side, ncol = 2, widths = c(0.5, 0.5))
 ```
  
-**Interpretation**
+**Interpretation:**
 The simple linear regression analysis was conducted to assess the effect of student absences on final mathematics grades (G3).
- 
+
 * **Significance:** The p-value for the absences coefficient is **0.497**. Since this value is significantly higher than the standard alpha level of 0.05, the relationship is **not statistically significant**.
+
 * **Coefficient (Slope):** The estimated coefficient for absences is **0.020**. While this technically suggests a negligible positive increase in grades per absence, the lack of statistical significance indicates that this result is likely due to chance or random variation rather than a meaningful effect.
+
 * **Conclusion:** Based on this model, we cannot conclude that the number of absences is a reliable predictor of the final mathematics grade. The data suggests that absences alone do not have a significant linear impact on academic performance in this context.
+
+```{r melisa-diagnostics, fig.width=8, fig.height=2.5, dev='pdf', fig.pos='H', fig.cap="Model Diagnostics: Residuals vs Fitted Values"}
+# 1. Get data for the plot
+diag_data <- data.frame(
+  Fitted = fitted(lm_absences),
+  Residuals = resid(lm_absences)
+)
+
+# 2. Create the plot (Height reduced to 2.5 to fit on page 10)
+ggplot(diag_data, aes(x = Fitted, y = Residuals)) +
+  geom_point(alpha = 0.6, color = "steelblue") +
+  geom_hline(yintercept = 0, color = "red", linetype = "dashed", size = 1) +
+  labs(title = "Residuals vs. Fitted Values",
+       subtitle = "Check for random distribution around zero (Homoscedasticity)",
+       x = "Fitted Values (Predicted G3)",
+       y = "Residuals") +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 9, face = "bold"),
+        plot.subtitle = element_text(size = 8),
+        axis.title = element_text(size = 8),
+        axis.text = element_text(size = 7))
+```
 
 # Literature
 
