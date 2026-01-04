@@ -265,7 +265,7 @@ Mode = `r names(which.max(table(df$studytime)))` | Median = `r median(df$studyti
  
 Most common is category 2 (2-5 hours/week) with 50.13% of students. Over 26% study <2 hours weekly (potentially insufficient). Only 6.84% study >10 hours. Median of 2 confirms typical student studies 2-5 hours weekly.
  
-# Binary Variables (Raju): Paid Extra Classes, Higher Education Aspiration, Internet Access
+# Binary Variables: Paid Extra Classes, Higher Education Aspiration, Internet Access
 
 ## Frequency Distribution & Visualization
 
@@ -298,7 +298,7 @@ ggplot(binary_long, aes(x = Variable, y = Count, fill = Response)) +
 
 **Interpretation:** Less than half (45.8%) take paid extra Math classes. A striking 94.9% aspire to higher education. Internet access is available to 83.3% of students.
  
-# Ordinal Variables (Raju): Mother's Education (Medu) and Family Relationship (Famrel)
+# Ordinal Variables: Mother's Education (Medu) and Family Relationship (Famrel)
  
 **Mother's Education categories:** 0 = none, 1 = primary (4th grade), 2 = 5th-9th grade, 3 = secondary, 4 = higher education.
  
@@ -334,7 +334,7 @@ grid.arrange(p1, p2, ncol = 2)
  
 **Interpretation:** Mother's education is skewed toward higher levels with mode=4 (higher education, n=131) and median=3 (secondary education). Only 3 mothers have no formal education. Family relationship quality is predominantly positive with mode=4 (good, n=195) and median=4 (good). Over 71% report good to excellent relationships, suggesting supportive home environments.
  
-# Numeric Variable (Raju): Age
+# Numeric Variable: Age
  
 ## Descriptive Statistics
  
@@ -379,9 +379,7 @@ grid.arrange(p1, p2, ncol = 2, widths = c(2, 1))
  
 **Interpretation:** Ages range from 15-22 years with mean=16.70, median=17, mode=16, and SD=1.28. The distribution is slightly right-skewed with most students in the typical 15-18 age range. Older students (19-22) may have repeated grades. The IQR of 2 years confirms low variability, with potential outliers at the upper end.
  
-# Bivariate Analysis (Raju): Mother's Education vs Final Grade (G3)
-
-## Descriptive Statistics & Visualization
+# Mother's Education vs Final Grade (G3)
 
 ```{r raju-bivariate-combined, fig.width=9, fig.height=2.5, fig.pos='H', fig.cap="Final Grade by Mother's Education - Summary Table (left) and Boxplot (right)"}
 bivariate_stats <- df %>% group_by(Medu) %>%
@@ -419,7 +417,7 @@ grid.arrange(table_grob, plot_grob, ncol = 2, widths = c(0.35, 0.65))
 
 **Interpretation:** Spearman correlation r=0.225 indicates a weak positive relationship between mother's education and final grades. The high mean for Medu=0 (13.0) is a small sample artifact (n=3). Excluding this group, grades increase consistently from 8.68 (primary) to 11.76 (higher education), suggesting mother's education is a meaningful predictor of student performance.
  
-# Bivariate Analysis (Hrusheekesh): Study Time vs G3
+# Study Time vs G3
 
 ```{r hrush-studytime-setup, include=FALSE}
 df$studytime_ordered <- factor(df$studytime,
@@ -459,7 +457,7 @@ grid.arrange(p_table, p_plot, ncol = 2, widths = c(0.35, 0.65))
 
 **Interpretation:** Students studying 5-10 hours achieve highest mean (`r studytime_mean_5_10`), while <2 hours group has lowest (`r studytime_mean_lt2`). Most students (n=`r studytime_n_2_5`) study 2-5 hours weekly.  Study time is a meaningful predictor, though extreme hours may reflect diminishing returns.
  
-# Bivariate Analysis (Hrusheekesh): Failures vs Absences
+# Failures vs Absences
 
 ```{r hrush-failures-setup, include=FALSE}
 df$failures_factor <- as.factor(df$failures)
@@ -497,7 +495,7 @@ grid.arrange(p_table, p_plot, ncol = 2, widths = c(0.35, 0.65))
 
 **Interpretation:** Students with no failures average `r failures_mean_0` absences, while those with 3 failures average `r failures_mean_3`. High variability and outliers suggest the relationship is not deterministic. Most failure groups cluster near typical absence levels, indicating factors beyond attendance contribute to academic failure.
  
-# Bivariate Analysis (Hrusheekesh): Paid Classes vs G3
+# Paid Classes vs G3
 
 ```{r hrush-paid-setup, include=FALSE}
 df$paid_labeled <- factor(df$paid, levels = c("no", "yes"), labels = c("No", "Yes"))
@@ -539,7 +537,7 @@ grid.arrange(p_table, p_plot, ncol = 2, widths = c(0.35, 0.65))
 
 **Interpretation:** Students without paid classes have higher mean grade (`r paid_mean_no`) vs. those with paid classes (`r paid_mean_yes`), difference of `r paid_diff` points. The visualizations suggest marginally significant difference. Counterintuitive finding likely reflects selection bias: struggling students more likely enroll for remedial support. Substantial distribution overlap indicates paid classes do not universally improve performance.
  
-# Bivariate Analysis (Melisa): G3 vs Internet Access
+# G3 vs Internet Access
  
 ```{r melisa-internet-combined, fig.width=9, fig.height=3, fig.pos='H', fig.cap="Internet Access vs G3: Statistics (left) and Boxplot (right)"}
 # 1. Prepare Data and Stats
@@ -587,7 +585,7 @@ grid.arrange(table_grob, plot_grob, ncol = 2, widths = c(0.35, 0.65))
  
 **Interpretation:** Students with internet access at home have a higher mean grade (10.62) compared to those without (9.41), a difference of roughly 1.2 points. The boxplot visually confirms this shift, with the "Yes" group showing a higher median and mean (white diamond). This suggests that access to digital resources may positively influence academic performance, potentially by facilitating research and study materials.
  
-# Bivariate Analysis (Melisa): G3 vs Wish For Higher Education
+# G3 vs Wish For Higher Education
  
 ```{r melisa-higher-combined, fig.width=9, fig.height=3, fig.pos='H', fig.cap="Higher Education Goal vs G3: Statistics (left) and Boxplot (right)"}
 # 1. Prepare Data and Stats
@@ -638,7 +636,7 @@ Observing the descriptive table, the mean and median grades for the "Yes" group 
  
 Overall, the desire to attend higher education appears to be positively associated with higher final grades.
  
-# Bivariate Analysis (Melisa): Family Relationship vs Age
+# Family Relationship vs Age
 
 ```{r melisa-rebellion-combined, fig.width=9, fig.height=5.5, fig.pos='H', fig.cap="Family Relationship vs Age: Statistics (left) and Heatmap (right)"}
 # 1. Prepare Stats
@@ -688,7 +686,7 @@ grid.arrange(table_grob, plot_grob, ncol = 2, widths = c(0.4, 0.6))
 **Interpretation**
 The heatmap suggests that family relationships do not significantly deteriorate with age, contradicting the "Rebellion Hypothesis." The highest concentration of students consistently reports good to excellent relationships (levels 4 and 5) across all age groups, with no clear downward trend in relationship quality as students get older.
  
-# Bivariate Analysis (Melisa): Simple Linear Regression G3~Absences
+# Simple Linear Regression G3~Absences
 
 ```{r melisa-regression-combined, fig.width=9, fig.height=3.5, dev='pdf', fig.pos='H', fig.cap="Prerequisite Linearity Check (left) and Regression Coefficients (right)"}
 library(grid)
