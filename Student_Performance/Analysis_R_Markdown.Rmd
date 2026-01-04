@@ -451,9 +451,10 @@ studytime_grade_stats <- df %>% group_by(studytime_ordered) %>%
 ```{r hrush-studytime-combined, fig.width=7, fig.height=2.5, fig.pos='H', fig.cap="Study Time vs G3: Statistics (left) and distribution (right)"}
 p_table <- tableGrob(studytime_grade_stats, rows = NULL, 
                      cols = c("Study Time", "n", "Mean", "Median", "SD"),
-                     theme = ttheme_minimal(base_size = 7,
-                       core = list(fg_params = list(hjust = 0, x = 0.05)),
-                       colhead = list(fg_params = list(fontface = "bold"))))
+                     theme = ttheme_default(
+                       core = list(fg_params = list(cex = 0.65)),
+                       colhead = list(fg_params = list(cex = 0.7))
+                       ))
 
 p_plot <- ggplot(df, aes(x = studytime_ordered, y = G3, fill = studytime_ordered)) +
   geom_boxplot(varwidth = TRUE, outlier.colour = "red", alpha = 0.7) +
@@ -486,9 +487,10 @@ failures_absence_stats <- df %>% group_by(failures) %>%
 ```{r hrush-failures-combined, fig.width=7, fig.height=2.5, fig.pos='H', fig.cap="Failures vs Absences: Statistics (left) and distribution (right)"}
 p_table <- tableGrob(failures_absence_stats, rows = NULL,
                      cols = c("Failures", "n", "Mean", "Median", "SD"),
-                     theme = ttheme_minimal(base_size = 7,
-                       core = list(fg_params = list(hjust = 0, x = 0.05)),
-                       colhead = list(fg_params = list(fontface = "bold"))))
+                     theme = ttheme_default(
+                       core = list(fg_params = list(cex = 0.65)),
+                       colhead = list(fg_params = list(cex = 0.7))
+                       ))
 
 p_plot <- ggplot(df, aes(x = failures_factor, y = absences, fill = failures_factor)) +
   geom_boxplot(outlier.colour = "red", alpha = 0.6) +
@@ -523,9 +525,10 @@ mean_by_paid <- aggregate(G3 ~ paid_labeled, df, mean)
 ```{r hrush-paid-combined, fig.width=7, fig.height=2.5, fig.pos='H', fig.cap="Paid Classes vs G3: Statistics (left) and density distribution (right)"}
 p_table <- tableGrob(paid_grade_stats, rows = NULL,
                      cols = c("Paid", "n", "Mean", "Median", "SD"),
-                     theme = ttheme_minimal(base_size = 7,
-                       core = list(fg_params = list(hjust = 0, x = 0.05)),
-                       colhead = list(fg_params = list(fontface = "bold"))))
+                     theme = ttheme_default(
+                       core = list(fg_params = list(cex = 0.65)),
+                       colhead = list(fg_params = list(cex = 0.7))
+                       ))
 
 p_plot <- ggplot(df, aes(x = G3, fill = paid_labeled)) +
   geom_density(alpha = 0.5) +
