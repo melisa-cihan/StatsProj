@@ -448,7 +448,7 @@ studytime_grade_stats <- df %>% group_by(studytime_ordered) %>%
   summarise(n = n(), Mean_G3 = round(mean(G3), 2), Median_G3 = median(G3), SD = round(sd(G3), 2), .groups = "drop")
 ```
 
-```{r hrush-studytime-combined, fig.width=7, fig.height=2.5, fig.pos='H', fig.cap="Study Time vs G3: Statistics (left) and distribution (right)"}
+```{r hrush-studytime-combined, fig.width=9, fig.height=3.5, fig.pos='H', fig.cap="Study Time vs G3: Statistics (left) and distribution (right)"}
 p_table <- tableGrob(studytime_grade_stats, rows = NULL, 
                      cols = c("Study Time", "n", "Mean", "Median", "SD"),
                      theme = ttheme_default(
@@ -465,12 +465,12 @@ p_plot <- ggplot(df, aes(x = studytime_ordered, y = G3, fill = studytime_ordered
   theme_minimal() +
   scale_fill_brewer(palette = "Pastel1") +
   theme(legend.position = "none",
-        axis.text.x = element_text(angle = 20, hjust = 1, size = 7),
-        plot.title = element_text(size = 9),
-        plot.subtitle = element_text(size = 7),
-        axis.title = element_text(size = 8))
+        axis.text.x = element_text(angle = 30, hjust = 1, size = 8),
+        plot.title = element_text(size = 10),
+        plot.subtitle = element_text(size = 8),
+        axis.title = element_text(size = 9))
 
-grid.arrange(p_table, p_plot, ncol = 2, widths = c(1, 1.8))
+grid.arrange(p_table, p_plot, ncol = 2, widths = c(0.35, 0.65))
 ```
 
 **Interpretation:** Spearman r=`r round(spearman_studytime, 3)` indicates moderate positive relationship. Students studying 5-10 hours achieve highest mean (12.61), while <2 hours group has lowest (9.13). Most students (n=197) study 2-5 hours weekly. Study time is a meaningful predictor, though extreme hours may reflect diminishing returns.
@@ -484,7 +484,7 @@ failures_absence_stats <- df %>% group_by(failures) %>%
   summarise(n = n(), Mean_Abs = round(mean(absences), 2), Median_Abs = median(absences), SD = round(sd(absences), 2), .groups = "drop")
 ```
 
-```{r hrush-failures-combined, fig.width=7, fig.height=2.5, fig.pos='H', fig.cap="Failures vs Absences: Statistics (left) and distribution (right)"}
+```{r hrush-failures-combined, fig.width=9, fig.height=3, fig.pos='H', fig.cap="Failures vs Absences: Statistics (left) and distribution (right)"}
 p_table <- tableGrob(failures_absence_stats, rows = NULL,
                      cols = c("Failures", "n", "Mean", "Median", "SD"),
                      theme = ttheme_default(
@@ -502,12 +502,12 @@ p_plot <- ggplot(df, aes(x = failures_factor, y = absences, fill = failures_fact
   theme_minimal() +
   scale_fill_brewer(palette = "YlOrRd") +
   theme(legend.position = "none",
-        plot.title = element_text(size = 9),
-        plot.subtitle = element_text(size = 7),
-        axis.title = element_text(size = 8),
-        axis.text = element_text(size = 7))
+        plot.title = element_text(size = 10),
+        plot.subtitle = element_text(size = 8),
+        axis.title = element_text(size = 9),
+        axis.text = element_text(size = 8))
 
-grid.arrange(p_table, p_plot, ncol = 2, widths = c(1, 1.8))
+grid.arrange(p_table, p_plot, ncol = 2, widths = c(0.35, 0.65))
 ```
 
 **Interpretation:** Spearman r=`r round(spearman_failures, 3)` reveals weak positive relationship. Students with no failures average 5.23 absences, while those with 3 failures average 8.18. High variability and outliers suggest the relationship is not deterministic. Most failure groups cluster near typical absence levels, indicating factors beyond attendance contribute to academic failure.
@@ -522,7 +522,7 @@ paid_grade_stats <- df %>% group_by(paid_labeled) %>%
 mean_by_paid <- aggregate(G3 ~ paid_labeled, df, mean)
 ```
 
-```{r hrush-paid-combined, fig.width=7, fig.height=2.5, fig.pos='H', fig.cap="Paid Classes vs G3: Statistics (left) and density distribution (right)"}
+```{r hrush-paid-combined, fig.width=9, fig.height=3, fig.pos='H', fig.cap="Paid Classes vs G3: Statistics (left) and density distribution (right)"}
 p_table <- tableGrob(paid_grade_stats, rows = NULL,
                      cols = c("Paid", "n", "Mean", "Median", "SD"),
                      theme = ttheme_default(
@@ -541,14 +541,14 @@ p_plot <- ggplot(df, aes(x = G3, fill = paid_labeled)) +
   theme_minimal() +
   scale_fill_manual(values = c("No" = "#E41A1C", "Yes" = "#377EB8")) +
   scale_color_manual(values = c("No" = "#E41A1C", "Yes" = "#377EB8")) +
-  theme(plot.title = element_text(size = 9),
-        plot.subtitle = element_text(size = 7),
-        axis.title = element_text(size = 8),
-        legend.title = element_text(size = 8),
-        legend.text = element_text(size = 7),
+  theme(plot.title = element_text(size = 10),
+        plot.subtitle = element_text(size = 8), 
+        axis.title = element_text(size = 9),
+        legend.title = element_text(size = 9),
+        legend.text = element_text(size = 8),
         legend.position = "bottom")
 
-grid.arrange(p_table, p_plot, ncol = 2, widths = c(1, 1.8))
+grid.arrange(p_table, p_plot, ncol = 2, widths = c(0.35, 0.65))
 ```
 
 **Interpretation:** Students without paid classes have higher mean grade (10.75) vs. those with paid classes (9.90), difference of 0.85 points. T-test p=`r round(t_test_result$p.value, 4)` suggests marginally significant difference. Counterintuitive finding likely reflects selection bias: struggling students more likely enroll for remedial support. Substantial distribution overlap indicates paid classes do not universally improve performance.
