@@ -731,7 +731,7 @@ plot_grob <- ggplot(df, aes(x = absences, y = G3)) +
 # 3. Create Table Grob (Right Side: Clean Coefficients Table)
 # We use broom::tidy to get the data instead of raw text, avoiding clipping issues.
 tidy_stats <- tidy(lm_absences)
-tidy_stats$term[tidy_stats$term == "(Intercept)"] <- "Intercept"
+tidy_stats$term[tidy_stats$term == "(Intercept)"] <- "(Intercept)"
 
 # Round values for cleaner display
 tidy_stats$estimate <- round(tidy_stats$estimate, 3)
@@ -748,7 +748,7 @@ table_grob <- tableGrob(tidy_stats, rows = NULL,
                         ))
 
 # Add a header title above the table using textGrob
-header_text <- textGrob("Regression Coefficients: G3 ~ Absences", 
+header_text <- textGrob("Regression Coefficients: Impact of Absences on Final Grade", 
                         gp = gpar(fontsize = 10, fontface = "bold"))
 
 # Combine header and table vertically
