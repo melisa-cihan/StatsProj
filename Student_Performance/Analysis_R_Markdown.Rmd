@@ -443,9 +443,12 @@ grid.arrange(table_grob, plot_grob, ncol = 2, widths = c(0.35, 0.65))
 df$studytime_ordered <- factor(df$studytime,
                        levels = c(1, 2, 3, 4),
                        labels = c("<2 hours", "2-5 hours", "5-10 hours", ">10 hours"))
-spearman_studytime <- cor(df$studytime, df$G3, method = "spearman")
+
 studytime_grade_stats <- df %>% group_by(studytime_ordered) %>%
   summarise(n = n(), Mean_G3 = round(mean(G3), 2), Median_G3 = median(G3), SD = round(sd(G3), 2), .groups = "drop")
+studytime_mean_5_10 <- round(studytime_grade_stats$Mean_G3[studytime_grade_stats$studytime_ordered == "5-10 hours"], 2)
+studytime_mean_lt2 <- round(studytime_grade_stats$Mean_G3[studytime_grade_stats$studytime_ordered == "<2 hours"], 2)
+studytime_n_2_5 <- studytime_grade_stats$n[studytime_grade_stats$studytime_ordered == "2-5 hours"]
 ```
 
 ```{r hrush-studytime-combined, fig.width=9, fig.height=3.5, fig.pos='H', fig.cap="Study Time vs G3: Statistics (left) and distribution (right)"}
@@ -460,7 +463,6 @@ p_plot <- ggplot(df, aes(x = studytime_ordered, y = G3, fill = studytime_ordered
   geom_boxplot(varwidth = TRUE, outlier.colour = "red", alpha = 0.7) +
   geom_jitter(color = "black", size = 0.25, alpha = 0.15, width = 0.1) +
   labs(title = "Final Grade by Study Time",
-       subtitle = paste("Spearman r =", round(spearman_studytime, 3)),
        x = "Weekly Study Time", y = "Final Grade (G3)") +
   theme_minimal() +
   scale_fill_brewer(palette = "Pastel1") +
@@ -473,15 +475,17 @@ p_plot <- ggplot(df, aes(x = studytime_ordered, y = G3, fill = studytime_ordered
 grid.arrange(p_table, p_plot, ncol = 2, widths = c(0.35, 0.65))
 ```
 
-**Interpretation:** Spearman r=`r round(spearman_studytime, 3)` indicates moderate positive relationship. Students studying 5-10 hours achieve highest mean (12.61), while <2 hours group has lowest (9.13). Most students (n=197) study 2-5 hours weekly. Study time is a meaningful predictor, though extreme hours may reflect diminishing returns.
+**Interpretation:** Students studying 5-10 hours achieve highest mean (`r studytime_mean_5_10`), while <2 hours group has lowest (`r studytime_mean_lt2`). Most students (n=`r studytime_n_2_5`) study 2-5 hours weekly.  Study time is a meaningful predictor, though extreme hours may reflect diminishing returns.
  
 # Bivariate Analysis (Hrusheekesh): Failures vs Absences
 
 ```{r hrush-failures-setup, include=FALSE}
 df$failures_factor <- as.factor(df$failures)
-spearman_failures <- cor(df$failures, df$absences, method = "spearman")
+
 failures_absence_stats <- df %>% group_by(failures) %>%
   summarise(n = n(), Mean_Abs = round(mean(absences), 2), Median_Abs = median(absences), SD = round(sd(absences), 2), .groups = "drop")
+failures_mean_0 <- round(failures_absence_stats$Mean_Abs[failures_absence_stats$failures == 0], 2)
+failures_mean_3 <- round(failures_absence_stats$Mean_Abs[failures_absence_stats$failures == 3], 2)
 ```
 
 ```{r hrush-failures-combined, fig.width=9, fig.height=3, fig.pos='H', fig.cap="Failures vs Absences: Statistics (left) and distribution (right)"}
@@ -497,7 +501,6 @@ p_plot <- ggplot(df, aes(x = failures_factor, y = absences, fill = failures_fact
   geom_jitter(width = 0.2, alpha = 0.2, size = 0.3) +
   geom_hline(yintercept = median(df$absences), linetype = "dashed", color = "blue", size = 0.7) +
   labs(title = "Absences vs. Past Failures",
-       subtitle = paste("Spearman r =", round(spearman_failures, 3)),
        x = "Past Failures", y = "Absences") +
   theme_minimal() +
   scale_fill_brewer(palette = "YlOrRd") +
@@ -510,16 +513,18 @@ p_plot <- ggplot(df, aes(x = failures_factor, y = absences, fill = failures_fact
 grid.arrange(p_table, p_plot, ncol = 2, widths = c(0.35, 0.65))
 ```
 
-**Interpretation:** Spearman r=`r round(spearman_failures, 3)` reveals weak positive relationship. Students with no failures average 5.23 absences, while those with 3 failures average 8.18. High variability and outliers suggest the relationship is not deterministic. Most failure groups cluster near typical absence levels, indicating factors beyond attendance contribute to academic failure.
+**Interpretation:** Students with no failures average `r failures_mean_0` absences, while those with 3 failures average `r failures_mean_3`. High variability and outliers suggest the relationship is not deterministic. Most failure groups cluster near typical absence levels, indicating factors beyond attendance contribute to academic failure.
  
 # Bivariate Analysis (Hrusheekesh): Paid Classes vs G3
 
 ```{r hrush-paid-setup, include=FALSE}
 df$paid_labeled <- factor(df$paid, levels = c("no", "yes"), labels = c("No", "Yes"))
-t_test_result <- t.test(G3 ~ paid, data = df)
 paid_grade_stats <- df %>% group_by(paid_labeled) %>%
   summarise(n = n(), Mean_G3 = round(mean(G3), 2), Median_G3 = median(G3), SD = round(sd(G3), 2), .groups = "drop")
 mean_by_paid <- aggregate(G3 ~ paid_labeled, df, mean)
+paid_mean_no <- round(paid_grade_stats$Mean_G3[paid_grade_stats$paid_labeled == "No"], 2)
+paid_mean_yes <- round(paid_grade_stats$Mean_G3[paid_grade_stats$paid_labeled == "Yes"], 2)
+paid_diff <- round(paid_mean_no - paid_mean_yes, 2)
 ```
 
 ```{r hrush-paid-combined, fig.width=9, fig.height=3, fig.pos='H', fig.cap="Paid Classes vs G3: Statistics (left) and density distribution (right)"}
@@ -535,7 +540,6 @@ p_plot <- ggplot(df, aes(x = G3, fill = paid_labeled)) +
   geom_vline(data = mean_by_paid, aes(xintercept = G3, color = paid_labeled),
              linetype = "dashed", size = 0.8) +
   labs(title = "Impact of Paid Classes on Final Grade",
-       subtitle = paste("t-test p =", round(t_test_result$p.value, 4)),
        x = "Final Grade (G3)", y = "Density",
        fill = "Paid", color = "Mean") +
   theme_minimal() +
@@ -551,7 +555,7 @@ p_plot <- ggplot(df, aes(x = G3, fill = paid_labeled)) +
 grid.arrange(p_table, p_plot, ncol = 2, widths = c(0.35, 0.65))
 ```
 
-**Interpretation:** Students without paid classes have higher mean grade (10.75) vs. those with paid classes (9.90), difference of 0.85 points. T-test p=`r round(t_test_result$p.value, 4)` suggests marginally significant difference. Counterintuitive finding likely reflects selection bias: struggling students more likely enroll for remedial support. Substantial distribution overlap indicates paid classes do not universally improve performance.
+**Interpretation:** Students without paid classes have higher mean grade (`r paid_mean_no`) vs. those with paid classes (`r paid_mean_yes`), difference of `r paid_diff` points. The visualizations suggest marginally significant difference. Counterintuitive finding likely reflects selection bias: struggling students more likely enroll for remedial support. Substantial distribution overlap indicates paid classes do not universally improve performance.
  
 # Bivariate Analysis (Melisa): G3 vs Internet Access
  
