@@ -767,6 +767,18 @@ ggplot(diag_data, aes(x = Fitted, y = Residuals)) +
         axis.text = element_text(size = 7))
 ```
 
+# AI Usage Disclosure
+
+This document acknowledges the use of AI software in the following aspects of the analysis:
+
+* **Data Visualization:** AI assistance was utilized for creating and formatting the statistical visualizations throughout this document, including the implementation of side-by-side plot arrangements using `grid.arrange()` and `gridExtra` functions.
+
+* **Introduction Enhancement:** The introduction section was enhanced with AI assistance to improve clarity, structure, and academic writing quality.
+
+* **Markdown Formatting:** AI software was used to assist with R Markdown formatting, including code chunk organization, figure placement, and document structure.
+
+All statistical analyses, interpretations, and conclusions presented in this document remain the responsibility of the authors.
+
 # Literature
 
 <div id="refs"></div>
