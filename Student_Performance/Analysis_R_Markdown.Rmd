@@ -32,7 +32,7 @@ options(knitr.kable.NA = '-')
 ```
  
 ```{r load-data, include=FALSE}
-# Load required libraries
+
 library(dplyr)
 library(ggplot2)
 library(moments)
@@ -40,7 +40,7 @@ library(knitr)
 library(gridExtra)
 library(grid)
  
-# Load dataset
+
 df <- read.csv("student-mat-selected.csv", stringsAsFactors = FALSE)
 ```
  
@@ -184,7 +184,7 @@ failures_freq <- data.frame(
   Cumulative = round(cumsum(as.vector(prop.table(table(df$failures)))) * 100, 2)
 )
  
-# Create table grob with smaller font
+
 table_grob <- tableGrob(failures_freq, rows = NULL,
                         theme = ttheme_default(
                           core = list(fg_params = list(cex = 0.65)),
@@ -192,7 +192,7 @@ table_grob <- tableGrob(failures_freq, rows = NULL,
                           rowhead = list(fg_params = list(cex = 0.65))
                         ))
  
-# Create plot
+
 plot_grob <- ggplotGrob(
   ggplot(df, aes(x = factor(failures))) +
     geom_bar(fill = "darkred", color = "white", alpha = 0.7) +
@@ -205,7 +205,7 @@ plot_grob <- ggplotGrob(
           axis.title = element_text(size = 9))
 )
  
-# Arrange side by side
+
 grid.arrange(table_grob, plot_grob, ncol = 2, widths = c(0.35, 0.65))
 ```
  
@@ -229,7 +229,7 @@ studytime_freq <- data.frame(
  
 studytime_labels <- c("1: <2 hrs", "2: 2-5 hrs", "3: 5-10 hrs", "4: >10 hrs")
  
-# Create table grob with smaller font
+
 table_grob <- tableGrob(studytime_freq, rows = NULL,
                         theme = ttheme_default(
                           core = list(fg_params = list(cex = 0.65)),
@@ -237,7 +237,7 @@ table_grob <- tableGrob(studytime_freq, rows = NULL,
                           rowhead = list(fg_params = list(cex = 0.65))
                         ))
  
-# Create plot
+
 plot_grob <- ggplotGrob(
   ggplot(df, aes(x = factor(studytime))) +
     geom_bar(fill = "mediumpurple", color = "white", alpha = 0.7) +
@@ -251,7 +251,7 @@ plot_grob <- ggplotGrob(
           axis.title = element_text(size = 9))
 )
  
-# Arrange side by side
+
 grid.arrange(table_grob, plot_grob, ncol = 2, widths = c(0.35, 0.65))
 ```
  
@@ -267,7 +267,7 @@ Most common is category 2 (2-5 hours/week) with 50.13% of students. Over 26% stu
 ### Frequency Distribution & Visualization
 
 ```{r raju-binary-combined, fig.width=7, fig.height=2.5, fig.pos='H', fig.cap="Binary Variables - Grouped Bar Chart"}
-# Create grouped bar chart data
+
 binary_long <- data.frame(
   Variable = rep(c("Paid Extra\nClasses", "Higher Education\nAspiration", "Internet\nAccess"), each = 2),
   Response = rep(c("Yes", "No"), 3),
@@ -385,7 +385,7 @@ bivariate_stats <- df %>% group_by(Medu) %>%
 
 spearman_cor <- cor(df$Medu, df$G3, method = "spearman")
 
-# Create table grob
+
 table_grob <- tableGrob(bivariate_stats, rows = NULL,
                         cols = c("Medu", "n", "Mean G3", "SD"),
                         theme = ttheme_default(
@@ -393,7 +393,7 @@ table_grob <- tableGrob(bivariate_stats, rows = NULL,
                           colhead = list(fg_params = list(cex = 0.7))
                         ))
 
-# Create boxplot
+
 plot_grob <- ggplotGrob(
   ggplot(df, aes(x = factor(Medu), y = G3, fill = factor(Medu))) +
     geom_boxplot() +
@@ -538,7 +538,7 @@ grid.arrange(p_table, p_plot, ncol = 2, widths = c(0.35, 0.65))
 ## G3 vs Internet Access
  
 ```{r melisa-internet-combined, fig.width=9, fig.height=3, fig.pos='H', fig.cap="Internet Access vs G3: Statistics (left) and Boxplot (right)"}
-# 1. Prepare Data and Stats
+
 df$internet_labeled <- factor(df$internet, levels = c("no", "yes"), labels = c("No", "Yes"))
 
 internet_stats <- df %>% 
@@ -551,7 +551,7 @@ internet_stats <- df %>%
     .groups = "drop"
   )
 
-# 2. Create Table Grob
+
 table_grob <- tableGrob(internet_stats, rows = NULL, 
                         cols = c("Internet", "n", "Mean", "Median", "SD"),
                         theme = ttheme_default(
@@ -559,7 +559,7 @@ table_grob <- tableGrob(internet_stats, rows = NULL,
                           colhead = list(fg_params = list(cex = 0.7))
                         ))
 
-# 3. Create Plot Grob (Boxplot with Mean Diamond)
+
 plot_grob <- ggplot(df, aes(x = internet_labeled, y = G3, fill = internet_labeled)) +
   geom_boxplot(alpha = 0.7, outlier.colour = "red", outlier.shape = 1) +
   stat_summary(fun = mean, geom = "point", shape = 23, size = 3, fill = "white") +
@@ -575,7 +575,7 @@ plot_grob <- ggplot(df, aes(x = internet_labeled, y = G3, fill = internet_labele
         axis.title = element_text(size = 9),
         axis.text = element_text(size = 8))
 
-# 4. Arrange side by side
+
 grid.arrange(table_grob, plot_grob, ncol = 2, widths = c(0.35, 0.65))
 
  
@@ -586,7 +586,7 @@ grid.arrange(table_grob, plot_grob, ncol = 2, widths = c(0.35, 0.65))
 ## G3 vs Wish For Higher Education
  
 ```{r melisa-higher-combined, fig.width=9, fig.height=3, fig.pos='H', fig.cap="Higher Education Goal vs G3: Statistics (left) and Boxplot (right)"}
-# 1. Prepare Data and Stats
+
 df$higher_labeled <- factor(df$higher, levels = c("no", "yes"), labels = c("No", "Yes"))
 
 higher_stats <- df %>% 
@@ -599,7 +599,7 @@ higher_stats <- df %>%
     .groups = "drop"
   )
 
-# 2. Create Table Grob (Small text size)
+
 table_grob <- tableGrob(higher_stats, rows = NULL, 
                         cols = c("Higher Education?", "n", "Mean", "Median", "SD"),
                         theme = ttheme_default(
@@ -607,7 +607,7 @@ table_grob <- tableGrob(higher_stats, rows = NULL,
                           colhead = list(fg_params = list(cex = 0.7))
                         ))
 
-# 3. Create Plot Grob
+
 plot_grob <- ggplot(df, aes(x = higher_labeled, y = G3, fill = higher_labeled)) +
   geom_boxplot(alpha = 0.7, outlier.colour = "red") +
   labs(title = "Final Grade by Higher Education Goal",
@@ -620,7 +620,7 @@ plot_grob <- ggplot(df, aes(x = higher_labeled, y = G3, fill = higher_labeled)) 
         axis.title = element_text(size = 9),
         axis.text = element_text(size = 8))
 
-# 4. Arrange side by side
+
 grid.arrange(table_grob, plot_grob, ncol = 2, widths = c(0.35, 0.65))
 ```
 
@@ -637,7 +637,7 @@ Overall, the desire to attend higher education appears to be positively associat
 ## Family Relationship vs Age
 
 ```{r melisa-rebellion-combined, fig.width=9, fig.height=3, fig.pos='H', fig.cap="Family Relationship vs Age: Statistics (left) and Heatmap (right)"}
-# 1. Prepare Stats
+
 age_famrel_stats <- df %>% 
   group_by(age) %>% 
   summarise(
@@ -648,7 +648,7 @@ age_famrel_stats <- df %>%
     .groups = "drop"
   )
 
-# 2. Create Table Grob (Small text size)
+
 table_grob <- tableGrob(age_famrel_stats, rows = NULL, 
                         cols = c("Age", "n", "Mean", "Median", "SD"),
                         theme = ttheme_default(
@@ -656,7 +656,7 @@ table_grob <- tableGrob(age_famrel_stats, rows = NULL,
                           colhead = list(fg_params = list(cex = 0.7))
                         ))
 
-# 3. Create Plot Grob (Heatmap)
+
 rebellion_counts <- df %>% count(age, famrel)
 
 plot_grob <- ggplot(rebellion_counts, aes(x = factor(age), y = factor(famrel), fill = n)) +
@@ -677,7 +677,7 @@ plot_grob <- ggplot(rebellion_counts, aes(x = factor(age), y = factor(famrel), f
         axis.title = element_text(size = 9),
         axis.text = element_text(size = 8))
 
-# 4. Arrange side by side
+
 grid.arrange(table_grob, plot_grob, ncol = 2, widths = c(0.4, 0.6))
 ```
  
@@ -691,10 +691,10 @@ library(grid)
 library(gridExtra)
 library(broom)
 
-# 1. Run Model
+
 lm_absences <- lm(G3 ~ absences, data = df)
 
-# 2. Create Plot Grob (Left Side: Linearity Check)
+
 plot_grob <- ggplot(df, aes(x = absences, y = G3)) +
   geom_point(alpha = 0.5) +
   geom_smooth(method = "lm", color = "red", se = FALSE) +
@@ -706,33 +706,30 @@ plot_grob <- ggplot(df, aes(x = absences, y = G3)) +
         axis.title = element_text(size = 10),
         axis.text = element_text(size = 9))
 
-# 3. Create Table Grob (Right Side: Clean Coefficients Table)
-# We use broom::tidy to get the data instead of raw text, avoiding clipping issues.
+
 tidy_stats <- tidy(lm_absences)
 tidy_stats$term[tidy_stats$term == "(Intercept)"] <- "(Intercept)"
 
-# Round values for cleaner display
+
 tidy_stats$estimate <- round(tidy_stats$estimate, 3)
 tidy_stats$std.error <- round(tidy_stats$std.error, 3)
 tidy_stats$statistic <- round(tidy_stats$statistic, 3)
 tidy_stats$p.value <- round(tidy_stats$p.value, 3)
 
-# Create the table object
-# We add a title row manually to the top of the table
+
 table_grob <- tableGrob(tidy_stats, rows = NULL, 
                         theme = ttheme_default(
                           core = list(fg_params = list(cex = 0.8)),
                           colhead = list(fg_params = list(cex = 0.9, fontface = "bold"))
                         ))
 
-# Add a header title above the table using textGrob
 header_text <- textGrob("Regression Coefficients: Impact of Absences on Final Grade", 
                         gp = gpar(fontsize = 10, fontface = "bold"))
 
-# Combine header and table vertically
+
 right_side <- arrangeGrob(header_text, table_grob, heights = c(0.1, 0.9))
 
-# 4. Arrange Plot (Left) and Table (Right)
+
 grid.arrange(plot_grob, right_side, ncol = 2, widths = c(0.5, 0.5))
 ```
  
@@ -746,13 +743,13 @@ The simple linear regression analysis was conducted to assess the effect of stud
 * **Conclusion:** Based on this model, we cannot conclude that the number of absences is a reliable predictor of the final mathematics grade. The data suggests that absences alone do not have a significant linear impact on academic performance in this context.
 
 ```{r melisa-diagnostics, fig.width=8, fig.height=2.5, dev='pdf', fig.pos='H', fig.cap="Model Diagnostics: Residuals vs Fitted Values"}
-# 1. Get data for the plot
+
 diag_data <- data.frame(
   Fitted = fitted(lm_absences),
   Residuals = resid(lm_absences)
 )
 
-# 2. Create the plot (Height reduced to 2.5 to fit on page 10)
+
 ggplot(diag_data, aes(x = Fitted, y = Residuals)) +
   geom_point(alpha = 0.6, color = "steelblue") +
   geom_hline(yintercept = 0, color = "red", linetype = "dashed", size = 1) +
